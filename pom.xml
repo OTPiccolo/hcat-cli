@@ -3,7 +3,7 @@
   <groupId>net.emb</groupId>
   <artifactId>hcat-cli</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>Haplotype Computer Assisted Tool</name>
+  <name>Haplotype Computer Analysis Tool</name>
   <description>A tool to aid in reading/comparing/transforming haplotypes.</description>
   
   <properties>
