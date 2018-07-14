@@ -17,8 +17,8 @@ public class FastaReader {
 
 	// FASTA format: https://de.wikipedia.org/wiki/FASTA-Format
 
-	private static char ID_CHAR = '>';
-	private static char COMMENT_CHAR = ';';
+	private static final char ID_CHAR = '>';
+	private static final char COMMENT_CHAR = ';';
 
 	private final BufferedReader reader;
 	private boolean enforceSameLength;
@@ -64,7 +64,7 @@ public class FastaReader {
 					previousSize = sequence.getLength();
 					sequences.add(sequence);
 				}
-				id = line;
+				id = line.substring(1);
 			} else {
 				// A sequence can be read over different lines.
 				value.append(line);
@@ -72,7 +72,9 @@ public class FastaReader {
 		}
 
 		// Last sequence hasn't been stored yet, do this here.
-		sequences.add(createSequence(value, id, previousSize));
+		if (id != null) {
+			sequences.add(createSequence(value, id, previousSize));
+		}
 
 		return sequences;
 	}
