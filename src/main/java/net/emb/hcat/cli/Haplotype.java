@@ -1,6 +1,6 @@
 package net.emb.hcat.cli;
 
-import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
@@ -26,12 +26,18 @@ public class Haplotype {
 	 *
 	 * @param master
 	 *            The master sequence that is used as the base sequence to
-	 *            compare to.
+	 *            compare to. Must not be <code>null</code>
 	 * @param slave
 	 *            The slave sequence that needs to be compared to the master
-	 *            sequence.
+	 *            sequence. Must not be <code>null</code>
 	 */
 	public Haplotype(final Sequence master, final Sequence slave) {
+		if (master == null) {
+			throw new IllegalArgumentException("Master sequence must not be null.");
+		}
+		if (slave == null) {
+			throw new IllegalArgumentException("Slave sequence must not be null.");
+		}
 		this.master = master;
 		difference = difference(master, slave);
 	}
@@ -52,10 +58,6 @@ public class Haplotype {
 	}
 
 	private String difference(final Sequence haplotype, final Sequence otherHaplotype) {
-		if (otherHaplotype == null) {
-			return null;
-		}
-
 		final int length = haplotype.getLength();
 		final int otherLength = otherHaplotype.getLength();
 		final int minLength = Math.min(length, otherLength);
@@ -108,7 +110,7 @@ public class Haplotype {
 	 *         differences. Each number will correspond to a change in the
 	 *         {@link #getDifference()}-string.
 	 */
-	public Set<Integer> getDifferencePosition() {
+	public SortedSet<Integer> getDifferencePosition() {
 		final TreeSet<Integer> pos = new TreeSet<>();
 
 		for (int i = 0; i < difference.length(); i++) {

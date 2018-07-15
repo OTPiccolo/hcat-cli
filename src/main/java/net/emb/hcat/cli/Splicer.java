@@ -1,6 +1,7 @@
 package net.emb.hcat.cli;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -16,16 +17,63 @@ public class Splicer {
 	private final List<Sequence> compare = new ArrayList<>();
 
 	/**
+	 * Constructor.
+	 */
+	public Splicer() {
+		// Do nothing;
+	}
+
+	/**
+	 * Constructor.
+	 *
+	 * @param sequences
+	 *            A collection of sequences that should be compared.
+	 * @see #getCompare()
+	 */
+	public Splicer(final Collection<Sequence> sequences) {
+		getCompare().addAll(sequences);
+	}
+
+	/**
+	 * Compares sequences to the master sequence with the given ID. This will
+	 * search through all given sequence.
+	 *
+	 * @param masterId
+	 *            The ID of the master sequence to use.
+	 * @return A map containing for each found haplotype, all sequences that are
+	 *         the same. Returns <code>null</code> if a sequence with the given
+	 *         ID could not be found.
+	 * @see #getCompare()
+	 */
+	public Map<Haplotype, List<Sequence>> compareToMaster(final String masterId) {
+		if (masterId == null) {
+			return null;
+		}
+
+		for (final Sequence sequence : getCompare()) {
+			if (masterId.equals(sequence.getName())) {
+				return compareToMaster(sequence);
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * Compares sequences to a master sequence.
 	 *
 	 * @param master
-	 *            The master sequence to compare the other sequences to.
+	 *            The master sequence to compare the other sequences to. Must
+	 *            not be <code>null</code>.
 	 * @return A map containing for each found haplotype, all sequences that are
 	 *         the same.
 	 */
 	public Map<Haplotype, List<Sequence>> compareToMaster(final Sequence master) {
+		if (master == null) {
+			throw new IllegalArgumentException("Master sequence must not be null.");
+		}
+
 		final Map<Haplotype, List<Sequence>> haplotypesMap = new LinkedHashMap<>();
-		for (final Sequence sequence : compare) {
+		for (final Sequence sequence : getCompare()) {
 			if (master.getLength() != sequence.getLength()) {
 				System.out.println("WARN: Sequence '" + sequence.getName() + "' has different length to master sequence. Expected length: " + master.getLength() + ". Actual length: " + sequence.getLength());
 				continue;
@@ -42,13 +90,14 @@ public class Splicer {
 	}
 
 	/**
-	 * Finds in all the sequences the haplotype with the most sequences to it.
+	 * Finds in all the sequences the most sequences that are equal to each
+	 * other.
 	 *
-	 * @return Finds in all the sequences the haplotype with the most sequences
-	 *         to it. If two haplotypes have the same number of sequences, only
-	 *         the first found haplotype is returned.
+	 * @return Finds in all the sequences the most sequences that are equal to
+	 *         each other. If two sequence types are tied for the most
+	 *         sequences, only one is returned
 	 */
-	public List<Sequence> findMostMatchHaplotype() {
+	public List<Sequence> findMostMatchSequences() {
 		List<Sequence> most = Collections.emptyList();
 		int maxHaplotypes = 0;
 		for (final Sequence haplotype : getCompare()) {
