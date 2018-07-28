@@ -92,14 +92,16 @@ public class FastaReader {
 	}
 
 	/**
-	 * Closes the underlying reader.
+	 * Convenience method to close the underlying reader.
 	 *
-	 * @throws IOException
-	 *             An exception closing the reader.
 	 * @see Reader#close()
 	 */
-	public void close() throws IOException {
-		reader.close();
+	public void close() {
+		try {
+			reader.close();
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**

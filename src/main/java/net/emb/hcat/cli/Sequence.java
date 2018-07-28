@@ -77,6 +77,9 @@ public class Sequence {
 
 	@Override
 	public String toString() {
+		if (name == null) {
+			return value;
+		}
 		return name + " -> " + value;
 	}
 

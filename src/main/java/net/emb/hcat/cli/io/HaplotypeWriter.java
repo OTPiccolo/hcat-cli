@@ -126,14 +126,16 @@ public class HaplotypeWriter {
 	}
 
 	/**
-	 * Closes the underlying writer.
+	 * Convenience method to close the underlying writer.
 	 *
-	 * @throws IOException
-	 *             An exception closing the writer.
 	 * @see Writer#close()
 	 */
-	public void close() throws IOException {
-		writer.close();
+	public void close() {
+		try {
+			writer.close();
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

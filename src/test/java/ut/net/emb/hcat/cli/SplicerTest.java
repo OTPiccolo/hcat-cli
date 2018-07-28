@@ -146,7 +146,8 @@ public class SplicerTest {
 			sequences = fasta.read();
 		}
 
-		final Map<Haplotype, List<Sequence>> map = new Splicer(sequences).compareToMaster("1");
+		final Map<Haplotype, List<Sequence>> map = new Splicer(sequences).compareToMaster("01");
+		Assert.assertNotNull("Master ID not found.", map);
 		Assert.assertEquals(24, map.size());
 	}
 
