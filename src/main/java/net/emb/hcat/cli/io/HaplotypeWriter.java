@@ -10,8 +10,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
-import net.emb.hcat.cli.Haplotype;
 import net.emb.hcat.cli.Sequence;
+import net.emb.hcat.cli.haplotype.Haplotype;
 
 /**
  * A writer to write out haplotypes as text.

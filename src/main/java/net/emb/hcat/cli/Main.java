@@ -1,16 +1,22 @@
 package net.emb.hcat.cli;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.Writer;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
+import com.jenkov.cliargs.CliArgs;
+
+import net.emb.hcat.cli.haplotype.Haplotype;
+import net.emb.hcat.cli.haplotype.HaplotypeTransformer;
 import net.emb.hcat.cli.io.FastaReader;
 import net.emb.hcat.cli.io.HaplotypeWriter;
 
@@ -21,7 +27,21 @@ import net.emb.hcat.cli.io.HaplotypeWriter;
  */
 public class Main {
 
-	private static final String LINEFEED = System.getProperty("line.separator");
+	private static final String HAPLOTYPE_ARG = "-haplotype";
+	private static final String CODON_ARG = "-codon";
+	private static final String HELP_1_ARG = "-?";
+	private static final String HELP_2_ARG = "-h";
+	private static final String HELP_3_ARG = "--help";
+	private static final String INPUT_ARG = "-i";
+	private static final String INPUT_LONG_ARG = "--input";
+	private static final String OUTPUT_ARG = "-o";
+	private static final String OUTPUT_LONG_ARG = "--output";
+	private static final String ENCODING_ARG = "-e";
+	private static final String ENCODING_LONG_ARG = "--encoding";
+	private static final String MASTER_SEQUENCE_ARG = "-ms";
+	private static final String MASTER_SEQUENCE_LONG_ARG = "--masterseq";
+	private static final String MASTER_ID_ARG = "-mi";
+	private static final String MASTER_ID_LONG_ARG = "--masterid";
 
 	/**
 	 * Entry method for the jar file.
@@ -37,147 +57,181 @@ public class Main {
 	 *            omitted, it will be written to standard out.
 	 */
 	public static void main(final String[] args) {
-		if (args.length == 0) {
-			System.out.println("No arguments are given. Enter at least the file where the test data are, and optionally another file where the output should be written to.");
-			System.exit(1);
+		final CliArgs cliArgs = new CliArgs(args);
+		if (cliArgs.switchPresent(CODON_ARG)) {
+			performCodon(cliArgs);
+		} else if (cliArgs.switchPresent(HAPLOTYPE_ARG)) {
+			performHaplotype(cliArgs);
+		} else if (isHelp(cliArgs)) {
+			performHelp();
+		} else {
+			performUnknown();
+		}
+	}
+
+	private static final boolean isHelp(final CliArgs args) {
+		return args.switchPresent(HELP_1_ARG) || args.switchPresent(HELP_2_ARG) || args.switchPresent(HELP_3_ARG);
+	}
+
+	private static final String getArg(final CliArgs args, final String shortOpt, final String longOpt) {
+		String value = args.switchValue(shortOpt);
+		if (value == null) {
+			value = args.switchValue(longOpt);
+		}
+		return value;
+	}
+
+	private static final void performCodon(final CliArgs args) {
+		if (isHelp(args)) {
+			writeCodonHelp();
+			System.exit(0);
+		}
+	}
+
+	private static final void performHaplotype(final CliArgs args) {
+		if (isHelp(args)) {
+			writeHaplotypeHelp();
+			System.exit(0);
 		}
 
-		FileInputStream inStream = null;
-		FileOutputStream outStream = null;
-		final Main main = new Main();
-
-		try {
-			inStream = new FileInputStream(args[0]);
-			main.setIn(inStream);
-
-			if (args.length > 1) {
-				outStream = new FileOutputStream(args[1]);
-				main.setOut(outStream);
+		// Read command line arguments.
+		String input = getArg(args, INPUT_ARG, INPUT_LONG_ARG);
+		final String output = getArg(args, OUTPUT_ARG, OUTPUT_LONG_ARG);
+		final String encoding = getArg(args, ENCODING_ARG, ENCODING_LONG_ARG);
+		final String seq = getArg(args, MASTER_SEQUENCE_ARG, MASTER_SEQUENCE_LONG_ARG);
+		final String id = getArg(args, MASTER_ID_ARG, MASTER_ID_LONG_ARG);
+		if (input == null) {
+			final String[] targets = args.targets();
+			if (targets.length > 0) {
+				input = targets[0];
 			} else {
-				main.setOut(System.out);
+				System.err.println("No input file specified.");
+				System.exit(1);
 			}
+		}
 
-			main.runMasterSplicer();
-		} catch (final IOException e) {
+		// Encoding charset.
+		final Charset charset = encoding == null ? StandardCharsets.UTF_8 : Charset.forName(encoding);
+
+		// Read input sequences
+		final List<Sequence> sequences;
+		try (Reader reader = new InputStreamReader(new FileInputStream(input), charset)) {
+			final FastaReader fasta = new FastaReader(reader);
+			fasta.setEnforceSameLength(true);
+			sequences = fasta.read();
+		} catch (final FileNotFoundException e) {
+			System.err.println("Input file could not be found. Underlying error message: " + e.getMessage());
 			e.printStackTrace();
 			System.exit(1);
-		} finally {
-			if (inStream != null) {
-				try {
-					inStream.close();
-				} catch (final IOException e) {
-					e.printStackTrace();
-				}
+			return;
+		} catch (final IOException e) {
+			System.err.println("Error reading input file. Underlying error message: " + e.getMessage());
+			e.printStackTrace();
+			System.exit(1);
+			return;
+		}
+
+		if (sequences.isEmpty()) {
+			System.err.println("No sequences found in input file.");
+			System.exit(1);
+		}
+
+		// Create haplotype analysis.
+		final Sequence master;
+		final Map<Haplotype, List<Sequence>> haplotypes;
+		final HaplotypeTransformer transformer = new HaplotypeTransformer(sequences);
+		if (id != null) {
+			haplotypes = transformer.compareToMaster(id);
+			if (haplotypes == null) {
+				System.err.println("Master sequence with ID \"" + "\" not found in input file.");
+				System.exit(1);
+				return;
 			}
-			if (outStream != null) {
-				try {
-					outStream.close();
-				} catch (final IOException e) {
-					e.printStackTrace();
-				}
+			master = haplotypes.keySet().iterator().next().getMaster();
+		} else {
+			if (seq == null) {
+				master = sequences.get(0);
+			} else {
+				master = new Sequence(seq, "Master Sequence");
+			}
+			haplotypes = transformer.compareToMaster(master);
+		}
+
+		// Create output writer.
+		final Writer writer;
+		if (output == null) {
+			writer = new OutputStreamWriter(System.out, charset);
+		} else {
+			try {
+				writer = new OutputStreamWriter(new FileOutputStream(output), charset);
+			} catch (final FileNotFoundException e) {
+				System.err.println("Could not write to output file. Underlying error message: " + e.getMessage());
+				e.printStackTrace();
+				System.exit(1);
+				return;
 			}
 		}
+
+		// Write output.
+		final HaplotypeWriter haplotypeWriter = new HaplotypeWriter(writer);
+		try {
+			writer.append("There are ");
+			writer.append(String.valueOf(haplotypes.size()));
+			writer.append(" different haplotypes.");
+			haplotypeWriter.write(master, haplotypes);
+		} catch (final IOException e) {
+			System.err.println("Error writing output file. Underlying error message: " + e.getMessage());
+			e.printStackTrace();
+			System.exit(1);
+			return;
+		}
+	}
+
+	private static final void performHelp() {
+		writeFullHelp();
 		System.exit(0);
 	}
 
-	private InputStream in;
-	private OutputStream out;
-
-	private Main() {
-
+	private static final void performUnknown() {
+		System.out.println("Could not detect what function to perform.");
+		System.out.println();
+		writeFullHelp();
+		System.exit(1);
 	}
 
-	private List<Sequence> readInputHandleError() throws IOException {
-		if (in == null) {
-			throw new IllegalArgumentException("No input stream given. Please set via setIn(InputStream).");
-		}
-		if (out == null) {
-			throw new IllegalArgumentException("No output stream given. Please set via setOut(OutputStream).");
-		}
+	private static final void writeFullHelp() {
+		System.out.println("The following functions are available:");
+		System.out.println();
 
-		final List<Sequence> sequences = readInput(in);
+		System.out.println("\t* Performa a haplotype analysis.");
+		System.out.println("\t\t" + HAPLOTYPE_ARG + " <args>");
+		System.out.println("\t\tFor help use: " + HAPLOTYPE_ARG + " " + HELP_1_ARG);
+		System.out.println();
 
-		if (sequences.isEmpty()) {
-			System.err.println("ERR: No definitions found. Exiting.");
-			System.exit(1);
-			return null;
-		}
-		return sequences;
+		System.out.println("\t* Performa a codon transformation.");
+		System.out.println("\t\t" + CODON_ARG + " <args>");
+		System.out.println("\t\tFor help use: " + CODON_ARG + " " + HELP_1_ARG);
+		System.out.println();
 	}
 
-	private void runMasterSplicer() throws IOException {
-		final List<Sequence> sequences = readInputHandleError();
-
-		final Sequence master = sequences.get(0);
-
-		final Splicer splicer = new Splicer();
-		splicer.getCompare().addAll(sequences);
-		final Map<Haplotype, List<Sequence>> result = splicer.compareToMaster(master);
-
-		writeOutput(master, result, out);
+	private static final void writeCodonHelp() {
+		System.err.println("Codon transformation not yet implemented.");
 	}
 
-	private void writeOutput(final Sequence master, final Map<Haplotype, List<Sequence>> result, final OutputStream out) throws IOException {
-		final OutputStreamWriter writer = new OutputStreamWriter(out, StandardCharsets.UTF_8);
-		writer.append("There are ");
-		writer.append(String.valueOf(result.size()));
-		writer.append(" different haplotypes.");
-		writer.append(LINEFEED);
-
-		writer.flush();
-
-		final HaplotypeWriter haplotypeWriter = new HaplotypeWriter(writer);
-		haplotypeWriter.write(master, result);
-		writer.flush();
+	private static final void writeHaplotypeHelp() {
+		System.out.println("Performs an analysis of haploytpes. Reads in sequences in Fasta format and writes them out as haploytpes.");
+		System.out.println();
+		System.out.println("Usage: -haplotype [options] input_file");
+		System.out.println("Options:");
+		writeOptionLine(INPUT_ARG, INPUT_LONG_ARG, "\tPath to input file. If present, 'input_file' will be ignored.");
+		writeOptionLine(OUTPUT_ARG, OUTPUT_LONG_ARG, "Path to output file. If not present, will be written to console.");
+		writeOptionLine(ENCODING_ARG, ENCODING_LONG_ARG, "Encoding of input file and output. If not given, UTF-8 will be used.");
+		writeOptionLine(MASTER_SEQUENCE_ARG, MASTER_SEQUENCE_LONG_ARG, "Master sequence to compare to. If neither master sequence nor ID is given, will use first sequence of input.");
+		writeOptionLine(MASTER_ID_ARG, MASTER_ID_LONG_ARG, "ID of master sequence to compare to. If neither master sequence nor ID is given, will use first sequence of input.");
 	}
 
-	private List<Sequence> readInput(final InputStream input) throws IOException {
-		final FastaReader reader = new FastaReader(new InputStreamReader(input));
-		reader.setEnforceSameLength(true);
-
-		try {
-			return reader.read();
-		} finally {
-			reader.close();
-		}
-	}
-
-	/**
-	 * Gets the input stream to read data from.
-	 *
-	 * @return The input stream.
-	 */
-	public InputStream getIn() {
-		return in;
-	}
-
-	/**
-	 * Sets the input stream to read data from.
-	 *
-	 * @param in
-	 *            The input stream.
-	 */
-	public void setIn(final InputStream in) {
-		this.in = in;
-	}
-
-	/**
-	 * Gets the output stream to read data from.
-	 *
-	 * @return The output stream.
-	 */
-	public OutputStream getOut() {
-		return out;
-	}
-
-	/**
-	 * Sets the output stream to read data from.
-	 *
-	 * @param out
-	 *            The output stream.
-	 */
-	public void setOut(final OutputStream out) {
-		this.out = out;
+	private static final void writeOptionLine(final String shortOpt, final String longOpt, final String text) {
+		System.out.println("\t" + shortOpt + ",\t" + longOpt + "\t" + text);
 	}
 
 }

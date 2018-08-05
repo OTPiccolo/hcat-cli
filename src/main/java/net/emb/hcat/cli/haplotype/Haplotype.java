@@ -1,7 +1,9 @@
-package net.emb.hcat.cli;
+package net.emb.hcat.cli.haplotype;
 
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import net.emb.hcat.cli.Sequence;
 
 /**
  * A haplotype contains the difference to a master sequence.

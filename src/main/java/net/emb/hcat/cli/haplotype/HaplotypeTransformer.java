@@ -1,4 +1,4 @@
-package net.emb.hcat.cli;
+package net.emb.hcat.cli.haplotype;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,19 +7,21 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.emb.hcat.cli.Sequence;
+
 /**
  * Splicer can compare sequences with each other to compute differences.
  *
  * @author OT Piccolo
  */
-public class Splicer {
+public class HaplotypeTransformer {
 
 	private final List<Sequence> compare = new ArrayList<>();
 
 	/**
 	 * Constructor.
 	 */
-	public Splicer() {
+	public HaplotypeTransformer() {
 		// Do nothing;
 	}
 
@@ -30,7 +32,7 @@ public class Splicer {
 	 *            A collection of sequences that should be compared.
 	 * @see #getCompare()
 	 */
-	public Splicer(final Collection<Sequence> sequences) {
+	public HaplotypeTransformer(final Collection<Sequence> sequences) {
 		getCompare().addAll(sequences);
 	}
 

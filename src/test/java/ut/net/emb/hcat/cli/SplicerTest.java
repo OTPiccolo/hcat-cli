@@ -12,9 +12,9 @@ import java.util.Map.Entry;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.emb.hcat.cli.Haplotype;
 import net.emb.hcat.cli.Sequence;
-import net.emb.hcat.cli.Splicer;
+import net.emb.hcat.cli.haplotype.Haplotype;
+import net.emb.hcat.cli.haplotype.HaplotypeTransformer;
 import net.emb.hcat.cli.io.FastaReader;
 
 @SuppressWarnings("javadoc")
@@ -29,12 +29,12 @@ public class SplicerTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void compNull() throws Exception {
-		new Splicer().compareToMaster((Sequence) null);
+		new HaplotypeTransformer().compareToMaster((Sequence) null);
 	}
 
 	@Test
 	public void compNothing() throws Exception {
-		final Map<Haplotype, List<Sequence>> map = new Splicer().compareToMaster(MASTER_SEQUENCE);
+		final Map<Haplotype, List<Sequence>> map = new HaplotypeTransformer().compareToMaster(MASTER_SEQUENCE);
 		Assert.assertNotNull(map);
 		Assert.assertEquals(0, map.size());
 	}
@@ -42,7 +42,7 @@ public class SplicerTest {
 	@Test
 	public void compItself() throws Exception {
 		final List<Sequence> compare = Arrays.asList(MASTER_SEQUENCE);
-		final Map<Haplotype, List<Sequence>> map = new Splicer(compare).compareToMaster(MASTER_SEQUENCE);
+		final Map<Haplotype, List<Sequence>> map = new HaplotypeTransformer(compare).compareToMaster(MASTER_SEQUENCE);
 		Assert.assertNotNull(map);
 		Assert.assertEquals(1, map.size());
 		final Entry<Haplotype, List<Sequence>> entry = map.entrySet().iterator().next();
@@ -57,7 +57,7 @@ public class SplicerTest {
 	@Test
 	public void compDiff() throws Exception {
 		final List<Sequence> compare = Arrays.asList(DIFF_SEQUENCE);
-		final Map<Haplotype, List<Sequence>> map = new Splicer(compare).compareToMaster(MASTER_SEQUENCE);
+		final Map<Haplotype, List<Sequence>> map = new HaplotypeTransformer(compare).compareToMaster(MASTER_SEQUENCE);
 		Assert.assertNotNull(map);
 		Assert.assertEquals(1, map.size());
 		final Entry<Haplotype, List<Sequence>> entry = map.entrySet().iterator().next();
@@ -73,7 +73,7 @@ public class SplicerTest {
 	public void compMore() throws Exception {
 		final Sequence endSequence = new Sequence("ABCC", "EndDiff");
 		final List<Sequence> compare = Arrays.asList(MASTER_SEQUENCE, DIFF_SEQUENCE, copy(MASTER_SEQUENCE, "Master2"), copy(DIFF_SEQUENCE, "Different2"), endSequence);
-		final Map<Haplotype, List<Sequence>> map = new Splicer(compare).compareToMaster(MASTER_SEQUENCE);
+		final Map<Haplotype, List<Sequence>> map = new HaplotypeTransformer(compare).compareToMaster(MASTER_SEQUENCE);
 		Assert.assertNotNull(map);
 		Assert.assertEquals(3, map.size());
 		final List<Sequence> sameSequences = map.get(new Haplotype(MASTER_SEQUENCE, MASTER_SEQUENCE));
@@ -94,26 +94,26 @@ public class SplicerTest {
 
 	@Test
 	public void idNull() throws Exception {
-		final Map<Haplotype, List<Sequence>> map = new Splicer(Collections.singletonList(MASTER_SEQUENCE)).compareToMaster((String) null);
+		final Map<Haplotype, List<Sequence>> map = new HaplotypeTransformer(Collections.singletonList(MASTER_SEQUENCE)).compareToMaster((String) null);
 		Assert.assertNull(map);
 	}
 
 	@Test
 	public void idNotFound() throws Exception {
-		final Map<Haplotype, List<Sequence>> map = new Splicer(Collections.singletonList(MASTER_SEQUENCE)).compareToMaster("NotFound");
+		final Map<Haplotype, List<Sequence>> map = new HaplotypeTransformer(Collections.singletonList(MASTER_SEQUENCE)).compareToMaster("NotFound");
 		Assert.assertNull(map);
 	}
 
 	@Test
 	public void idFound() throws Exception {
-		final Map<Haplotype, List<Sequence>> map = new Splicer(Collections.singletonList(MASTER_SEQUENCE)).compareToMaster("Master");
+		final Map<Haplotype, List<Sequence>> map = new HaplotypeTransformer(Collections.singletonList(MASTER_SEQUENCE)).compareToMaster("Master");
 		Assert.assertNotNull(map);
 		Assert.assertEquals(1, map.size());
 	}
 
 	@Test
 	public void findEmpty() throws Exception {
-		final List<Sequence> sequences = new Splicer().findMostMatchSequences();
+		final List<Sequence> sequences = new HaplotypeTransformer().findMostMatchSequences();
 		Assert.assertNotNull(sequences);
 		Assert.assertEquals(0, sequences.size());
 	}
@@ -121,7 +121,7 @@ public class SplicerTest {
 	@Test
 	public void findEqualNumber() throws Exception {
 		final List<Sequence> compare = Arrays.asList(MASTER_SEQUENCE, DIFF_SEQUENCE);
-		final List<Sequence> sequences = new Splicer(compare).findMostMatchSequences();
+		final List<Sequence> sequences = new HaplotypeTransformer(compare).findMostMatchSequences();
 		Assert.assertNotNull(sequences);
 		Assert.assertEquals(1, sequences.size());
 	}
@@ -129,7 +129,7 @@ public class SplicerTest {
 	@Test
 	public void find() throws Exception {
 		final List<Sequence> compare = Arrays.asList(MASTER_SEQUENCE, DIFF_SEQUENCE, copy(MASTER_SEQUENCE, "Master2"), copy(DIFF_SEQUENCE, "Different2"), copy(DIFF_SEQUENCE, "Different3"));
-		final List<Sequence> sequences = new Splicer(compare).findMostMatchSequences();
+		final List<Sequence> sequences = new HaplotypeTransformer(compare).findMostMatchSequences();
 		Assert.assertNotNull(sequences);
 		Assert.assertEquals(3, sequences.size());
 		for (final Sequence sequence : sequences) {
@@ -146,7 +146,7 @@ public class SplicerTest {
 			sequences = fasta.read();
 		}
 
-		final Map<Haplotype, List<Sequence>> map = new Splicer(sequences).compareToMaster("01");
+		final Map<Haplotype, List<Sequence>> map = new HaplotypeTransformer(sequences).compareToMaster("01");
 		Assert.assertNotNull("Master ID not found.", map);
 		Assert.assertEquals(24, map.size());
 	}

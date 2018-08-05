@@ -3,8 +3,8 @@ package ut.net.emb.hcat.cli;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.emb.hcat.cli.Haplotype;
 import net.emb.hcat.cli.Sequence;
+import net.emb.hcat.cli.haplotype.Haplotype;
 
 @SuppressWarnings("javadoc")
 public class HaplotypeTest {
