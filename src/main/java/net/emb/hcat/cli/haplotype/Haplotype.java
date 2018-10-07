@@ -1,175 +1,100 @@
 package net.emb.hcat.cli.haplotype;
 
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.List;
 
 import net.emb.hcat.cli.Sequence;
 
 /**
- * A haplotype contains the difference to a master sequence.
+ * A haplotype is a set, containing all sequences that are identical in their
+ * value attribute.
  *
  * @author OT Piccolo
  */
-public class Haplotype {
+public class Haplotype extends LinkedHashSet<Sequence> {
+
+	private static final long serialVersionUID = 6822250160172188239L;
 
 	/**
-	 * The default char to indicate that there is no difference in the slave
-	 * sequence.
+	 * Turns a collection of sequences into their corresponding haplotypes.
+	 *
+	 * @param sequences
+	 *            The sequences to compactify.
+	 * @return A list, containing all found haplotypes.
 	 */
-	public static final char DEFAULT_NO_DIFFERENCE = '.';
-
-	private final String difference;
-	private final Sequence master;
-
-	private char noDifference = DEFAULT_NO_DIFFERENCE;
+	public static final List<Haplotype> createHaplotypes(final Collection<Sequence> sequences) {
+		if (sequences == null) {
+			return null;
+		}
+		final List<Haplotype> haplotypes = new ArrayList<Haplotype>();
+		for (final Sequence sequence : sequences) {
+			boolean foundHaplotype = false;
+			for (final Haplotype haplotype : haplotypes) {
+				if (haplotype.belongsToHaplotype(sequence)) {
+					haplotype.add(sequence);
+					foundHaplotype = true;
+					break;
+				}
+			}
+			if (!foundHaplotype) {
+				haplotypes.add(new Haplotype(sequence));
+			}
+		}
+		return haplotypes;
+	}
 
 	/**
 	 * Constructor.
-	 *
-	 * @param master
-	 *            The master sequence that is used as the base sequence to
-	 *            compare to. Must not be <code>null</code>
-	 * @param slave
-	 *            The slave sequence that needs to be compared to the master
-	 *            sequence. Must not be <code>null</code>
 	 */
-	public Haplotype(final Sequence master, final Sequence slave) {
-		if (master == null) {
-			throw new IllegalArgumentException("Master sequence must not be null.");
-		}
-		if (slave == null) {
-			throw new IllegalArgumentException("Slave sequence must not be null.");
-		}
-		this.master = master;
-		difference = difference(master, slave);
-	}
-
-	@Override
-	public String toString() {
-		return difference.toString();
-	}
-
-	@Override
-	public boolean equals(final Object obj) {
-		return (obj instanceof Haplotype) ? difference.equals(((Haplotype) obj).difference) : false;
-	}
-
-	@Override
-	public int hashCode() {
-		return difference.hashCode();
-	}
-
-	private String difference(final Sequence haplotype, final Sequence otherHaplotype) {
-		final int length = haplotype.getLength();
-		final int otherLength = otherHaplotype.getLength();
-		final int minLength = Math.min(length, otherLength);
-
-		final StringBuilder builder = new StringBuilder(Math.max(length, otherLength));
-		for (int i = 0; i < minLength; i++) {
-			if (haplotype.getValue().charAt(i) == otherHaplotype.getValue().charAt(i)) {
-				builder.append(noDifference);
-			} else {
-				builder.append(otherHaplotype.getValue().charAt(i));
-			}
-		}
-
-		for (int i = minLength; i < length; i++) {
-			builder.append(' ');
-		}
-
-		for (int i = minLength; i < otherLength; i++) {
-			builder.append(otherHaplotype.getValue().charAt(i));
-		}
-
-		return builder.toString();
+	public Haplotype() {
+		super();
 	}
 
 	/**
-	 * Whether there is a difference between the two given sequences.
+	 * Constructor. Initializes it with a sequence already belonging to this
+	 * haplotype.
 	 *
-	 * @return <code>true</code>, is there is a difference, or
-	 *         <code>false</code>, if there is no difference. If
-	 *         <code>true</code>, {@link #getDifference()} will only contain
-	 *         {@link #getNoDifference()}-characters.
+	 * @param sequence
+	 *            The sequence to add. Must not be <code>null</code>.
 	 */
-	public boolean isDifferent() {
-		if (getDifference() == null) {
+	public Haplotype(final Sequence sequence) {
+		super();
+		add(sequence);
+	}
+
+	/**
+	 * Checks whether the given sequence does belong to this haplotype. For
+	 * this, the sequence value must be identical to the other sequences already
+	 * in this haplotype.
+	 *
+	 * @param sequence
+	 *            The sequence to check.
+	 * @return <code>true</code>, if the given sequence belongs to this
+	 *         haplotype, <code>false</code> otherwise. If this haplotype is
+	 *         empty so far, this always returns <code>true</code>.
+	 */
+	public boolean belongsToHaplotype(final Sequence sequence) {
+		if (sequence == null) {
 			return false;
 		}
-
-		for (int i = 0; i < getDifference().length(); i++) {
-			if (getDifference().charAt(i) != noDifference) {
-				return true;
-			}
+		if (isEmpty()) {
+			return true;
 		}
-		return false;
+		final Sequence compTo = iterator().next();
+		return sequence.equalSeq(compTo);
 	}
 
-	/**
-	 * Gets an ordered set that contains the positions of all the differences.
-	 *
-	 * @return An ordered set containing all the positions of all the
-	 *         differences. Each number will correspond to a change in the
-	 *         {@link #getDifference()}-string.
-	 */
-	public SortedSet<Integer> getDifferencePosition() {
-		final TreeSet<Integer> pos = new TreeSet<>();
-
-		for (int i = 0; i < difference.length(); i++) {
-			if (difference.charAt(i) != noDifference) {
-				pos.add(i);
-			}
+	@Override
+	public boolean add(final Sequence sequence) {
+		if (sequence == null) {
+			throw new IllegalArgumentException("Sequence must not be null.");
 		}
-
-		return pos;
-	}
-
-	/**
-	 * Gets the difference to the master sequence.
-	 *
-	 * @return A sequence, displaying the differences. It will either show no
-	 *         difference in a character, or the character from the slave
-	 *         sequence that was used in the input. With it and the master
-	 *         sequence, one can recompute the slave sequence.
-	 * @see #getMaster()
-	 * @see #getNoDifference()
-	 */
-	public String getDifference() {
-		return difference;
-	}
-
-	/**
-	 * The master sequence that was used to create the difference.
-	 *
-	 * @return The master sequence.
-	 */
-	public Sequence getMaster() {
-		return master;
-	}
-
-	/**
-	 * The char that will be used in the difference string to symbolize that
-	 * there is no difference.
-	 *
-	 * @return The char that will be used in the difference string to symbolize
-	 *         that there is no difference.
-	 * @see #DEFAULT_NO_DIFFERENCE
-	 */
-	public char getNoDifference() {
-		return noDifference;
-	}
-
-	/**
-	 * The char that will be used in the difference string to symbolize that
-	 * there is no difference.
-	 *
-	 * @param noDifference
-	 *            The char that will be used in the difference string to
-	 *            symbolize that there is no difference.
-	 * @see #DEFAULT_NO_DIFFERENCE
-	 */
-	public void setNoDifference(final char noDifference) {
-		this.noDifference = noDifference;
+		if (!belongsToHaplotype(sequence)) {
+			throw new IllegalArgumentException("Sequence " + sequence + " does not belong to this haplotype.");
+		}
+		return super.add(sequence);
 	}
 
 }

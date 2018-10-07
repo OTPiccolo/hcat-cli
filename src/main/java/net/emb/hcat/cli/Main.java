@@ -86,6 +86,9 @@ public class Main {
 			writeCodonHelp();
 			System.exit(0);
 		}
+
+		writeCodonHelp();
+		System.exit(1);
 	}
 
 	private static final void performHaplotype(final CliArgs args) {
@@ -136,26 +139,40 @@ public class Main {
 			System.exit(1);
 		}
 
-		// Create haplotype analysis.
-		final Sequence master;
-		final Map<Haplotype, List<Sequence>> haplotypes;
-		final HaplotypeTransformer transformer = new HaplotypeTransformer(sequences);
+		// Create haplotypes.
+		final List<Haplotype> haplotypes = Haplotype.createHaplotypes(sequences);
+
+		// Get master sequence to compare to.
+		Sequence master = null;
 		if (id != null) {
-			haplotypes = transformer.compareToMaster(id);
-			if (haplotypes == null) {
-				System.err.println("Master sequence with ID \"" + "\" not found in input file.");
+			for (final Haplotype haplotype : haplotypes) {
+				for (final Sequence sequence : haplotype) {
+					if (id.equals(sequence.getName())) {
+						master = sequence;
+						break;
+					}
+				}
+				if (master != null) {
+					break;
+				}
+			}
+			if (master == null) {
+				System.err.println("Master sequence with ID \"" + id + "\" not found in input file.");
 				System.exit(1);
 				return;
 			}
-			master = haplotypes.keySet().iterator().next().getMaster();
 		} else {
 			if (seq == null) {
 				master = sequences.get(0);
 			} else {
 				master = new Sequence(seq, "Master Sequence");
 			}
-			haplotypes = transformer.compareToMaster(master);
 		}
+
+		// Create haplotype analysis.
+		final Map<Haplotype, Difference> haplotypeMap;
+		final HaplotypeTransformer transformer = new HaplotypeTransformer(haplotypes);
+		haplotypeMap = transformer.compareToMaster(master);
 
 		// Create output writer.
 		final Writer writer;
@@ -178,7 +195,8 @@ public class Main {
 			writer.append("There are ");
 			writer.append(String.valueOf(haplotypes.size()));
 			writer.append(" different haplotypes.");
-			haplotypeWriter.write(master, haplotypes);
+			writer.append('\n');
+			haplotypeWriter.write(master, haplotypeMap);
 		} catch (final IOException e) {
 			System.err.println("Error writing output file. Underlying error message: " + e.getMessage());
 			e.printStackTrace();

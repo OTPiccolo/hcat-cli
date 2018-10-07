@@ -2,11 +2,11 @@ package net.emb.hcat.cli.haplotype;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.emb.hcat.cli.Difference;
 import net.emb.hcat.cli.Sequence;
 
 /**
@@ -16,7 +16,7 @@ import net.emb.hcat.cli.Sequence;
  */
 public class HaplotypeTransformer {
 
-	private final List<Sequence> compare = new ArrayList<>();
+	private final List<Haplotype> compare = new ArrayList<>();
 
 	/**
 	 * Constructor.
@@ -28,97 +28,76 @@ public class HaplotypeTransformer {
 	/**
 	 * Constructor.
 	 *
-	 * @param sequences
-	 *            A collection of sequences that should be compared.
+	 * @param haplotypes
+	 *            A collection of haplotypes that should be compared.
 	 * @see #getCompare()
 	 */
-	public HaplotypeTransformer(final Collection<Sequence> sequences) {
-		getCompare().addAll(sequences);
+	public HaplotypeTransformer(final Collection<Haplotype> haplotypes) {
+		getCompare().addAll(haplotypes);
 	}
 
 	/**
-	 * Compares sequences to the master sequence with the given ID. This will
-	 * search through all given sequence.
+	 * Compares haplotypes to a master sequence with the given ID. This will
+	 * search through all given haplotypes and their containing sequences.
 	 *
 	 * @param masterId
 	 *            The ID of the master sequence to use.
-	 * @return A map containing for each found haplotype, all sequences that are
-	 *         the same. Returns <code>null</code> if a sequence with the given
-	 *         ID could not be found.
+	 * @return A map containing for each haplotype, the corresponding difference
+	 *         to the master sequence. Returns <code>null</code> if a sequence
+	 *         with the given ID could not be found.
 	 * @see #getCompare()
 	 */
-	public Map<Haplotype, List<Sequence>> compareToMaster(final String masterId) {
+	public Map<Haplotype, Difference> compareToMaster(final String masterId) {
 		if (masterId == null) {
 			return null;
 		}
 
-		for (final Sequence sequence : getCompare()) {
-			if (masterId.equals(sequence.getName())) {
-				return compareToMaster(sequence);
+		for (final Haplotype haplotype : getCompare()) {
+			for (final Sequence sequence : haplotype) {
+				if (masterId.equals(sequence.getName())) {
+					return compareToMaster(sequence);
+				}
 			}
 		}
 		return null;
 	}
 
 	/**
-	 * Compares sequences to a master sequence.
+	 * Compares haplotypes to a master sequence.
 	 *
 	 * @param master
-	 *            The master sequence to compare the other sequences to. Must
-	 *            not be <code>null</code>.
-	 * @return A map containing for each found haplotype, all sequences that are
-	 *         the same.
+	 *            The master sequence to compare the haplotypes to. Must not be
+	 *            <code>null</code>.
+	 * @return A map containing for each haplotype, the corresponding
+	 *         differences.
 	 */
-	public Map<Haplotype, List<Sequence>> compareToMaster(final Sequence master) {
+	public Map<Haplotype, Difference> compareToMaster(final Sequence master) {
 		if (master == null) {
 			throw new IllegalArgumentException("Master sequence must not be null.");
 		}
 
-		final Map<Haplotype, List<Sequence>> haplotypesMap = new LinkedHashMap<>();
-		for (final Sequence sequence : getCompare()) {
+		final Map<Haplotype, Difference> haplotypesMap = new LinkedHashMap<>();
+		for (final Haplotype haplotype : getCompare()) {
+			if (haplotype.isEmpty()) {
+				continue;
+			}
+			final Sequence sequence = haplotype.iterator().next();
 			if (master.getLength() != sequence.getLength()) {
 				System.out.println("WARN: Sequence '" + sequence.getName() + "' has different length to master sequence. Expected length: " + master.getLength() + ". Actual length: " + sequence.getLength());
 				continue;
 			}
-			final Haplotype difference = new Haplotype(master, sequence);
-			List<Sequence> haplotypes = haplotypesMap.get(difference);
-			if (haplotypes == null) {
-				haplotypes = new ArrayList<>();
-				haplotypesMap.put(difference, haplotypes);
-			}
-			haplotypes.add(sequence);
+			final Difference difference = new Difference(master, sequence);
+			haplotypesMap.put(haplotype, difference);
 		}
 		return haplotypesMap;
 	}
 
 	/**
-	 * Finds in all the sequences the most sequences that are equal to each
-	 * other.
-	 *
-	 * @return Finds in all the sequences the most sequences that are equal to
-	 *         each other. If two sequence types are tied for the most
-	 *         sequences, only one is returned
-	 */
-	public List<Sequence> findMostMatchSequences() {
-		List<Sequence> most = Collections.emptyList();
-		int maxHaplotypes = 0;
-		for (final Sequence haplotype : getCompare()) {
-			for (final List<Sequence> list : compareToMaster(haplotype).values()) {
-				if (list.size() > maxHaplotypes) {
-					most = list;
-					maxHaplotypes = list.size();
-				}
-			}
-		}
-		return most;
-	}
-
-	/**
-	 * Gets the list that will be used in the splicer.
+	 * Gets the list that will be used in the transformer.
 	 *
 	 * @return The list.
 	 */
-	public List<Sequence> getCompare() {
+	public List<Haplotype> getCompare() {
 		return compare;
 	}
 

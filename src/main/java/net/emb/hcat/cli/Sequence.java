@@ -37,13 +37,17 @@ public class Sequence {
 		setName(name);
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((value == null) ? 0 : value.hashCode());
-		return result;
+	/**
+	 * Checks whether this sequence is equal to another sequence, ignoring its
+	 * name.
+	 * 
+	 * @param seq
+	 *            The other sequence to check.
+	 * @return <code>true</code>, if both sequence values are the same,
+	 *         <code>false</code> otherwise.
+	 */
+	public boolean equalSeq(final Sequence seq) {
+		return seq == null ? false : value.equals(seq.value);
 	}
 
 	@Override
@@ -73,6 +77,15 @@ public class Sequence {
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((value == null) ? 0 : value.hashCode());
+		return result;
 	}
 
 	@Override

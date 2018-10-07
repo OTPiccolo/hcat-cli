@@ -4,12 +4,12 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
+import net.emb.hcat.cli.Difference;
 import net.emb.hcat.cli.Sequence;
 import net.emb.hcat.cli.haplotype.Haplotype;
 
@@ -55,10 +55,10 @@ public class HaplotypeWriter {
 	 * @throws IOException
 	 *             An I/O exception.
 	 */
-	public void write(final Sequence master, final Map<Haplotype, List<Sequence>> result) throws IOException {
+	public void write(final Sequence master, final Map<Haplotype, Difference> result) throws IOException {
 		// Calculate all positions.
 		final Set<Integer> positions = new TreeSet<>();
-		for (final Haplotype difference : result.keySet()) {
+		for (final Difference difference : result.values()) {
 			positions.addAll(difference.getDifferencePosition());
 		}
 
@@ -73,11 +73,11 @@ public class HaplotypeWriter {
 		// Write for each difference the name of all sequences.
 		int maxLength = Math.max(positionLength, masterLength);
 		final Map<Haplotype, StringBuilder> names = new LinkedHashMap<>();
-		for (final Entry<Haplotype, List<Sequence>> entry : result.entrySet()) {
+		for (final Haplotype haplotype : result.keySet()) {
 			final StringBuilder builder = new StringBuilder();
-			names.put(entry.getKey(), builder);
-			for (final Sequence haplotype : entry.getValue()) {
-				builder.append(haplotype.getName());
+			names.put(haplotype, builder);
+			for (final Sequence sequence : haplotype) {
+				builder.append(sequence.getName());
 				builder.append("; ");
 			}
 			builder.delete(builder.length() - 2, builder.length());
@@ -114,7 +114,7 @@ public class HaplotypeWriter {
 
 		// Write out the differences.
 		for (final Entry<Haplotype, StringBuilder> entry : names.entrySet()) {
-			final String difference = entry.getKey().getDifference();
+			final String difference = result.get(entry.getKey()).getDifference();
 			writer.append(entry.getValue().toString());
 			for (final Integer pos : positions) {
 				writer.append('\t');
