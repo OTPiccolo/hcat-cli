@@ -3,6 +3,7 @@ package ut.net.emb.hcat.cli;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Assert;
@@ -16,11 +17,7 @@ import net.emb.hcat.cli.io.FastaReader;
 public class HaplotypeTest {
 
 	private static final Sequence MASTER_SEQUENCE = new Sequence("ABCD", "Master");
-	private static final Sequence START_DIFF_SEQUENCE = new Sequence("BBCD", "Start");
 	private static final Sequence MID_DIFF_SEQUENCE = new Sequence("AACD", "Mid");
-	private static final Sequence END_DIFF_SEQUENCE = new Sequence("ABCC", "End");
-	private static final Sequence MULTI_DIFF_SEQUENCE = new Sequence("ACBD", "Multi");
-	private static final Sequence ALL_DIFF_SEQUENCE = new Sequence("DCBA", "All");
 	private static final Sequence SHORT_SEQUENCE = new Sequence("ABC", "Short");
 	private static final Sequence LONG_SEQUENCE = new Sequence("ABCDE", "Long");
 
@@ -28,10 +25,28 @@ public class HaplotypeTest {
 		return new Sequence(copy.getValue(), newName);
 	}
 
-	// TODO Add tests for static method of Haplotype.
+	@Test
+	public void testCreate() {
+		final Sequence masterCopy = copy(MASTER_SEQUENCE, "Master2");
+		final Sequence longCopy = copy(LONG_SEQUENCE, "Long2");
+		final List<Sequence> sequences = Arrays.asList(MASTER_SEQUENCE, MID_DIFF_SEQUENCE, SHORT_SEQUENCE, LONG_SEQUENCE, masterCopy, MID_DIFF_SEQUENCE, longCopy);
+		final List<Haplotype> haplotypes = Haplotype.createHaplotypes(sequences);
+		Assert.assertNotNull(haplotypes);
+		Assert.assertEquals(4, haplotypes.size());
+		Assert.assertEquals(2, haplotypes.get(0).size());
+		Assert.assertEquals(1, haplotypes.get(1).size());
+		Assert.assertEquals(1, haplotypes.get(2).size());
+		Assert.assertEquals(2, haplotypes.get(3).size());
+		Assert.assertTrue(haplotypes.get(0).contains(MASTER_SEQUENCE));
+		Assert.assertTrue(haplotypes.get(0).contains(masterCopy));
+		Assert.assertTrue(haplotypes.get(1).contains(MID_DIFF_SEQUENCE));
+		Assert.assertTrue(haplotypes.get(2).contains(SHORT_SEQUENCE));
+		Assert.assertTrue(haplotypes.get(3).contains(LONG_SEQUENCE));
+		Assert.assertTrue(haplotypes.get(3).contains(longCopy));
+	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testNull() {
+	public void testNullAdd() {
 		final Haplotype haplotype = new Haplotype();
 		haplotype.add(null);
 	}
@@ -88,7 +103,7 @@ public class HaplotypeTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void testAddNot() {
 		final Haplotype haplotype = new Haplotype(MASTER_SEQUENCE);
-		haplotype.add(ALL_DIFF_SEQUENCE);
+		haplotype.add(MID_DIFF_SEQUENCE);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
