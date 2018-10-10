@@ -1,4 +1,4 @@
-package ut.net.emb.hcat.cli;
+package ut.net.emb.hcat.cli.haplotype;
 
 import java.util.Arrays;
 import java.util.Collections;

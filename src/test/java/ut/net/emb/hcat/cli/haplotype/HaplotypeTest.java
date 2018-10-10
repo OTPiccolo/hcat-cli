@@ -1,4 +1,4 @@
-package ut.net.emb.hcat.cli;
+package ut.net.emb.hcat.cli.haplotype;
 
 import java.io.InputStreamReader;
 import java.io.Reader;

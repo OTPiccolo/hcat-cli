@@ -97,4 +97,14 @@ public class Haplotype extends LinkedHashSet<Sequence> {
 		return super.add(sequence);
 	}
 
+	/**
+	 * Returns the first sequence in this haplotype.
+	 * 
+	 * @return the first sequence in this haplotype, or <code>null</code>, if
+	 *         this haplotype is still empty.
+	 */
+	public Sequence getFirstSequence() {
+		return isEmpty() ? null : iterator().next();
+	}
+
 }
