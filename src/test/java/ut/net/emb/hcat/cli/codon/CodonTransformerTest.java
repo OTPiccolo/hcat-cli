@@ -47,7 +47,7 @@ public class CodonTransformerTest {
 		}
 		Assert.assertNotNull("Did not find Echinoderm Code in default table.", echinodermCode);
 
-		try (Reader reader = new InputStreamReader(CodonTransformerTest.class.getResourceAsStream("/testdata.txt"), StandardCharsets.UTF_8)) {
+		try (Reader reader = new InputStreamReader(CodonTransformerTest.class.getResourceAsStream("/fasta-testdata1.txt"), StandardCharsets.UTF_8)) {
 			final FastaReader fasta = new FastaReader(reader);
 			fasta.setEnforceSameLength(true);
 			testSequences = fasta.read();

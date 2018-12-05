@@ -138,7 +138,7 @@ public class FastaReaderTest {
 	@Test
 	public void readTestData() throws Exception {
 		List<Sequence> sequences;
-		try (Reader reader = new InputStreamReader(getClass().getResourceAsStream("/testdata.txt"), StandardCharsets.UTF_8)) {
+		try (Reader reader = new InputStreamReader(getClass().getResourceAsStream("/fasta-testdata1.txt"), StandardCharsets.UTF_8)) {
 			final FastaReader fasta = new FastaReader(reader);
 			fasta.setEnforceSameLength(true);
 			sequences = fasta.read();
