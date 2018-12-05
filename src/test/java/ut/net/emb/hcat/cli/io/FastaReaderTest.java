@@ -136,7 +136,7 @@ public class FastaReaderTest {
 	}
 
 	@Test
-	public void readTestData() throws Exception {
+	public void readTestData1() throws Exception {
 		List<Sequence> sequences;
 		try (Reader reader = new InputStreamReader(getClass().getResourceAsStream("/fasta-testdata1.txt"), StandardCharsets.UTF_8)) {
 			final FastaReader fasta = new FastaReader(reader);
@@ -146,6 +146,19 @@ public class FastaReaderTest {
 
 		Assert.assertNotNull(sequences);
 		Assert.assertEquals(35, sequences.size());
+	}
+
+	@Test
+	public void readTestData2() throws Exception {
+		List<Sequence> sequences;
+		try (Reader reader = new InputStreamReader(getClass().getResourceAsStream("/fasta-testdata2.fas"), StandardCharsets.UTF_8)) {
+			final FastaReader fasta = new FastaReader(reader);
+			fasta.setEnforceSameLength(true);
+			sequences = fasta.read();
+		}
+
+		Assert.assertNotNull(sequences);
+		Assert.assertEquals(34, sequences.size());
 	}
 
 }
