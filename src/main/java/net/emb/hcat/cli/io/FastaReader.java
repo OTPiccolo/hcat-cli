@@ -13,7 +13,7 @@ import net.emb.hcat.cli.Sequence;
  *
  * @author OT Piccolo
  */
-public class FastaReader {
+public class FastaReader implements ISequenceReader {
 
 	// FASTA format: https://de.wikipedia.org/wiki/FASTA-Format
 
@@ -36,17 +36,7 @@ public class FastaReader {
 		this.reader = new BufferedReader(reader, 128);
 	}
 
-	/**
-	 * Reads in sequences from the underlying reader.<br>
-	 * <br>
-	 * If {@link #isEnforceSameLength()} is <code>true</code>, and a sequence is
-	 * encountered that doesn't match the length of a previous sequence, an
-	 * IOException will be thrown.
-	 *
-	 * @return A list of sequences.
-	 * @throws IOException
-	 *             An I/O exception.
-	 */
+	@Override
 	public List<Sequence> read() throws IOException {
 		final List<Sequence> sequences = new ArrayList<Sequence>();
 		String line;
