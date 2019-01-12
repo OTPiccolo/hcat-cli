@@ -34,6 +34,9 @@ public interface ISequenceWriter {
 	 *             If an I/O error occurs.
 	 */
 	default void write(final Sequence... sequences) throws IOException {
+		if (sequences == null) {
+			throw new IllegalArgumentException("Sequences must not be null.");
+		}
 		write(Arrays.asList(sequences));
 	}
 
