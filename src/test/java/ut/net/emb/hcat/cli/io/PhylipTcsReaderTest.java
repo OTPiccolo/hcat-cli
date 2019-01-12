@@ -72,19 +72,19 @@ public class PhylipTcsReaderTest {
 
 	@Test(expected = IOException.class)
 	public void wrongSeqCount() throws Exception {
-		final PhylipTcsReader reader = new PhylipTcsReader(new StringReader("2   1\nSingle\nABCD"));
+		final PhylipTcsReader reader = new PhylipTcsReader(new StringReader("2    1\nSingle\nABCD"));
 		reader.read();
 	}
 
 	@Test(expected = IOException.class)
 	public void wrongSeqLength1() throws Exception {
-		final PhylipTcsReader reader = new PhylipTcsReader(new StringReader("1   3\nSingle\nABCD"));
+		final PhylipTcsReader reader = new PhylipTcsReader(new StringReader("1    3\nSingle\nABCD"));
 		reader.read();
 	}
 
 	@Test(expected = IOException.class)
 	public void wrongSeqLength2() throws Exception {
-		final PhylipTcsReader reader = new PhylipTcsReader(new StringReader("1   5\nSingle\nABCD"));
+		final PhylipTcsReader reader = new PhylipTcsReader(new StringReader("1    5\nSingle\nABCD"));
 		reader.read();
 	}
 
