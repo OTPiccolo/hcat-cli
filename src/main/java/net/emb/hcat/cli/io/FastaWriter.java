@@ -52,6 +52,8 @@ public class FastaWriter implements ISequenceWriter {
 				writer.newLine();
 			}
 		}
+
+		writer.newLine();
 	}
 
 	/**
