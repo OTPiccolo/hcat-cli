@@ -1,10 +1,7 @@
 package net.emb.hcat.cli.io;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.List;
 
 import net.emb.hcat.cli.Sequence;
 
@@ -13,15 +10,15 @@ import net.emb.hcat.cli.Sequence;
  *
  * @author OT Piccolo
  */
-public class FastaReader implements ISequenceReader {
+public class FastaReader extends BaseSequenceReader {
 
 	// FASTA format: https://de.wikipedia.org/wiki/FASTA-Format
 
 	private static final char ID_CHAR = '>';
 	private static final char COMMENT_CHAR = ';';
 
-	private final BufferedReader reader;
-	private boolean enforceSameLength;
+	private final StringBuilder builder = new StringBuilder(1024);
+	private String id;
 
 	/**
 	 * Constructor.
@@ -30,95 +27,53 @@ public class FastaReader implements ISequenceReader {
 	 *            The reader data should be read from.
 	 */
 	public FastaReader(final Reader reader) {
-		if (reader == null) {
-			throw new IllegalArgumentException("Reader can't be null.");
-		}
-		this.reader = new BufferedReader(reader, 128);
+		super(reader);
 	}
 
 	@Override
-	public List<Sequence> read() throws IOException {
-		final List<Sequence> sequences = new ArrayList<Sequence>();
+	protected Sequence readSequence() throws IOException {
+		Sequence seq = null;
 		String line;
-		String id = null;
-		int previousSize = 0;
-		final StringBuilder value = new StringBuilder(1024);
-
-		while ((line = reader.readLine()) != null) {
-			if (line.isEmpty() || line.charAt(0) == COMMENT_CHAR) {
-				// Do nothing, just skip.
-			} else if (line.charAt(0) == ID_CHAR) {
-				if (id != null) {
-					// Start of next sequence must have been found.
-					final Sequence sequence = createSequence(value, id, previousSize);
-					previousSize = sequence.getLength();
-					sequences.add(sequence);
+		while ((line = readLine()) != null) {
+			if (line.charAt(0) == ID_CHAR) {
+				if (id == null) {
+					// No ID has yet been encountered, so must have been the
+					// very first ID.
+					id = line.substring(1);
+				} else {
+					// Start of next sequence must have been found, as ID tag
+					// has been encountered.
+					break;
 				}
-				id = line.substring(1);
 			} else {
 				// A sequence can be read over different lines.
-				value.append(line);
+				builder.append(line);
 			}
 		}
 
-		// Last sequence hasn't been stored yet, do this here.
-		if (id != null) {
-			sequences.add(createSequence(value, id, previousSize));
+		seq = createSequence(builder, id);
+		if (line != null) {
+			// Store ID for next sequence.
+			id = line.substring(1);
 		}
 
-		return sequences;
+		return seq;
 	}
 
-	private Sequence createSequence(final StringBuilder builder, final String id, final int previousSize) throws IOException {
+	@Override
+	protected boolean isData(final String line) {
+		return super.isData(line) && line.charAt(0) != COMMENT_CHAR;
+	}
+
+	private Sequence createSequence(final StringBuilder builder, final String id) {
+		if (builder.length() == 0) {
+			return null;
+		}
+
 		final Sequence sequence = new Sequence(builder.toString());
 		sequence.setName(id);
 		builder.setLength(0);
-
-		if (isEnforceSameLength() && previousSize > 0 && previousSize != sequence.getLength()) {
-			throw new IOException("Sequence doesn't match in length with previous sequence. Name of sequence: " + id);
-		}
-
 		return sequence;
-	}
-
-	/**
-	 * Convenience method to close the underlying reader.
-	 *
-	 * @see Reader#close()
-	 */
-	public void close() {
-		try {
-			reader.close();
-		} catch (final IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * Gets whether each read sequence must be the same length. If this is
-	 * <code>true</code>, and a sequence is encountered that doesn't match the
-	 * length of a previous sequence, an IOException will be thrown. Default is
-	 * <code>false</code>.
-	 *
-	 * @return <code>true</code>, if all sequences must be of the same length,
-	 *         <code>false</code> otherwise.
-	 */
-	public boolean isEnforceSameLength() {
-		return enforceSameLength;
-	}
-
-	/**
-	 * Sets whether each read sequence must be the same length. If this is
-	 * <code>true</code>, and a sequence is encountered that doesn't match the
-	 * length of a previous sequence, an IOException will be thrown. Default is
-	 * <code>false</code>.
-	 *
-	 * @param enforceSameLength
-	 *            <code>true</code>, if all sequences must be of the same
-	 *            length, <code>false</code> otherwise.
-	 */
-	public void setEnforceSameLength(final boolean enforceSameLength) {
-		this.enforceSameLength = enforceSameLength;
 	}
 
 }
