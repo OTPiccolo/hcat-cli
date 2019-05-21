@@ -11,6 +11,7 @@ import net.emb.hcat.cli.Sequence;
  *
  * @author OT Piccolo
  */
+@FunctionalInterface
 public interface ISequenceWriter {
 
 	/**

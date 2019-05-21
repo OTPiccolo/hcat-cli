@@ -15,7 +15,7 @@ import net.emb.hcat.cli.Sequence;
  * @author OT Piccolo
  *
  */
-public class BaseSequenceWriter implements ISequenceWriter {
+public class BaseSequenceWriter implements ISequenceWriter, AutoCloseable {
 
 	private final BufferedWriter writer;
 
@@ -147,6 +147,7 @@ public class BaseSequenceWriter implements ISequenceWriter {
 	/**
 	 * Convenience method to close the underlying writer.
 	 */
+	@Override
 	public void close() {
 		try {
 			writer.close();

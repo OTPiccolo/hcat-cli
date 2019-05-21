@@ -16,7 +16,7 @@ import net.emb.hcat.cli.Sequence;
  * @author OT Piccolo
  *
  */
-public class BaseSequenceReader implements ISequenceReader {
+public class BaseSequenceReader implements ISequenceReader, AutoCloseable {
 
 	private final BufferedReader reader;
 
@@ -53,7 +53,7 @@ public class BaseSequenceReader implements ISequenceReader {
 	 */
 	protected List<Sequence> readSequences() throws IOException {
 		int previousSize = 0;
-		final ArrayList<Sequence> sequences = new ArrayList<Sequence>();
+		final ArrayList<Sequence> sequences = new ArrayList<>();
 		Sequence sequence;
 
 		while ((sequence = readSequence()) != null) {
@@ -68,7 +68,7 @@ public class BaseSequenceReader implements ISequenceReader {
 
 	/**
 	 * Reads the header. Default implementation does nothing.
-	 * 
+	 *
 	 * @throws IOException
 	 *             If an I/O error occurs.
 	 */
@@ -78,7 +78,7 @@ public class BaseSequenceReader implements ISequenceReader {
 
 	/**
 	 * Reads a single sequence from the underlying reader.
-	 * 
+	 *
 	 * @return A sequence, or <code>null</code>, if no more sequences can be
 	 *         read. Usually if the end of the underlying reader has been
 	 *         reached.
@@ -145,6 +145,7 @@ public class BaseSequenceReader implements ISequenceReader {
 	 *
 	 * @see Reader#close()
 	 */
+	@Override
 	public void close() {
 		try {
 			reader.close();
