@@ -3,7 +3,7 @@ package net.emb.hcat.cli;
 /**
  * A sequence contains the information about the DNA string.
  *
- * @author OT Piccolo
+ * @author Heiko Mattes
  */
 public class Sequence {
 

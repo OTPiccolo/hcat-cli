@@ -12,7 +12,7 @@ import net.emb.hcat.cli.Sequence;
 /**
  * Splicer can compare sequences with each other to compute differences.
  *
- * @author OT Piccolo
+ * @author Heiko Mattes
  */
 public class HaplotypeTransformer {
 

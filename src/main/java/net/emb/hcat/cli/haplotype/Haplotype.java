@@ -11,7 +11,7 @@ import net.emb.hcat.cli.Sequence;
  * A haplotype is a set, containing all sequences that are identical in their
  * value attribute.
  *
- * @author OT Piccolo
+ * @author Heiko Mattes
  */
 public class Haplotype extends LinkedHashSet<Sequence> {
 

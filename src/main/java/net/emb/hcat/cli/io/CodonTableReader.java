@@ -17,7 +17,7 @@ import net.emb.hcat.cli.codon.CodonTransformationData;
  * A reader to read Codon data from a table, according to:
  * https://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi
  *
- * @author OT Piccolo
+ * @author Heiko Mattes
  */
 public class CodonTableReader {
 

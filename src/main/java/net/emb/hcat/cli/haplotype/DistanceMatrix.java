@@ -13,7 +13,7 @@ import net.emb.hcat.cli.Sequence;
  * A distance matrix describes the distance of each haplotype to each other
  * haplotypes.
  *
- * @author OT Piccolo
+ * @author Heiko Mattes
  */
 public class DistanceMatrix {
 

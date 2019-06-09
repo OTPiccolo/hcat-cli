@@ -23,7 +23,7 @@ import net.emb.hcat.cli.io.HaplotypeWriter;
 /**
  * Main class.
  *
- * @author OT Piccolo
+ * @author Heiko Mattes
  */
 public class Main {
 

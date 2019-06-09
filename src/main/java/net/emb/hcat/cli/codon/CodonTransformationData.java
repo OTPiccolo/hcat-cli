@@ -6,7 +6,7 @@ import java.util.TreeMap;
 /**
  * Data to perform a Codon transformation.
  * 
- * @author OT Piccolo
+ * @author Heiko Mattes
  */
 public class CodonTransformationData {
 

@@ -11,7 +11,7 @@ import net.emb.hcat.cli.Sequence;
 /**
  * A reader to read in sequences of DNA in Pyhlip TCS format.
  *
- * @author OT Piccolo
+ * @author Heiko Mattes
  */
 public class PhylipTcsReader extends BaseSequenceReader {
 

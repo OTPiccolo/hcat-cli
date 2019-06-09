@@ -12,7 +12,7 @@ import net.emb.hcat.cli.Sequence;
  * sequence, if present, and then in the next line the whole sequence. It can be
  * configured to automatically line break a sequence.
  *
- * @author OT Piccolo
+ * @author Heiko Mattes
  *
  */
 public class BaseSequenceWriter implements ISequenceWriter, AutoCloseable {

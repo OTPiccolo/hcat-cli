@@ -16,7 +16,7 @@ import net.emb.hcat.cli.haplotype.Haplotype;
 /**
  * A writer to write out haplotypes as text.
  *
- * @author OT Piccolo
+ * @author Heiko Mattes
  */
 public class HaplotypeWriter {
 

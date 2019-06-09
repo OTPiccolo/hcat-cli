@@ -6,7 +6,7 @@ import java.io.Writer;
 /**
  * A writer to write out sequences of DNA in Phylip TCS format.
  *
- * @author OT Piccolo
+ * @author Heiko Mattes
  */
 public class PhylipTcsWriter extends PhylipWriter {
 

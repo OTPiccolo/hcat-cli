@@ -8,7 +8,7 @@ import net.emb.hcat.cli.Sequence;
 /**
  * A reader to read in sequences of DNA in FASTA format.
  *
- * @author OT Piccolo
+ * @author Heiko Mattes
  */
 public class FastaReader extends BaseSequenceReader {
 

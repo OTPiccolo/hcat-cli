@@ -8,7 +8,7 @@ import net.emb.hcat.cli.Sequence;
 /**
  * A writer to write out sequences of DNA in FASTA format.
  *
- * @author OT Piccolo
+ * @author Heiko Mattes
  */
 public class FastaWriter extends BaseSequenceWriter {
 

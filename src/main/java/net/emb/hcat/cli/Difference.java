@@ -6,7 +6,7 @@ import java.util.TreeSet;
 /**
  * A difference describes the differences between two sequences
  *
- * @author OT Piccolo
+ * @author Heiko Mattes
  */
 public class Difference {
 

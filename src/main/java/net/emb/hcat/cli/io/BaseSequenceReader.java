@@ -13,7 +13,7 @@ import net.emb.hcat.cli.Sequence;
  * its name, followed by another line that contains the sequence value. Empty
  * lines are permitted.
  *
- * @author OT Piccolo
+ * @author Heiko Mattes
  *
  */
 public class BaseSequenceReader implements ISequenceReader, AutoCloseable {

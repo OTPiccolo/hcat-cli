@@ -9,7 +9,7 @@ import net.emb.hcat.cli.Sequence;
 /**
  * An interface to read in sequences.
  *
- * @author OT Piccolo
+ * @author Heiko Mattes
  */
 @FunctionalInterface
 public interface ISequenceWriter {

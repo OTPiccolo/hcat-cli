@@ -10,7 +10,7 @@ import net.emb.hcat.cli.Sequence;
 /**
  * A writer to write out sequences of DNA in Phylip format.
  *
- * @author OT Piccolo
+ * @author Heiko Mattes
  */
 public class PhylipWriter extends BaseSequenceWriter {
 

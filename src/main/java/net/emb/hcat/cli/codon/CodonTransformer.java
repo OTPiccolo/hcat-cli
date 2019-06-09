@@ -5,7 +5,7 @@ import net.emb.hcat.cli.Sequence;
 /**
  * Changes a sequence to a codon.
  *
- * @author OT Piccolo
+ * @author Heiko Mattes
  */
 public class CodonTransformer {
 
