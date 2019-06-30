@@ -39,7 +39,9 @@ public class Haplotype extends LinkedHashSet<Sequence> {
 				}
 			}
 			if (!foundHaplotype) {
-				haplotypes.add(new Haplotype(sequence));
+				final Haplotype haplotype = new Haplotype(sequence);
+				haplotypes.add(haplotype);
+				haplotype.setName((haplotypes.size() < 10 ? "Hap0" : "Hap") + haplotypes.size());
 			}
 		}
 		return haplotypes;
@@ -111,7 +113,7 @@ public class Haplotype extends LinkedHashSet<Sequence> {
 
 	/**
 	 * Gets the name for this haplotype.
-	 * 
+	 *
 	 * @return The name.
 	 */
 	public String getName() {
@@ -120,7 +122,7 @@ public class Haplotype extends LinkedHashSet<Sequence> {
 
 	/**
 	 * Sets the name for this haploytpe.
-	 * 
+	 *
 	 * @param name
 	 *            The name.
 	 */
