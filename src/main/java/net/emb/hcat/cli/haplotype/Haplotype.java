@@ -45,6 +45,8 @@ public class Haplotype extends LinkedHashSet<Sequence> {
 		return haplotypes;
 	}
 
+	private String name;
+
 	/**
 	 * Constructor.
 	 */
@@ -99,12 +101,31 @@ public class Haplotype extends LinkedHashSet<Sequence> {
 
 	/**
 	 * Returns the first sequence in this haplotype.
-	 * 
+	 *
 	 * @return the first sequence in this haplotype, or <code>null</code>, if
 	 *         this haplotype is still empty.
 	 */
 	public Sequence getFirstSequence() {
 		return isEmpty() ? null : iterator().next();
+	}
+
+	/**
+	 * Gets the name for this haplotype.
+	 * 
+	 * @return The name.
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * Sets the name for this haploytpe.
+	 * 
+	 * @param name
+	 *            The name.
+	 */
+	public void setName(final String name) {
+		this.name = name;
 	}
 
 }
