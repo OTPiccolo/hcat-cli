@@ -1,5 +1,6 @@
 package net.emb.hcat.cli.haplotype;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -116,6 +117,26 @@ public class DistanceMatrix {
 			copy.put(entry.getKey(), new LinkedHashMap<Haplotype, Integer>(entry.getValue()));
 		}
 		return copy;
+	}
+
+	/**
+	 * Gets the minimal distance between haplotypes.
+	 *
+	 * @return the minimal distance between haplotypes, or 0 if less then two
+	 *         haplotypes were used to create this distance matrix.
+	 */
+	public int getMinDistance() {
+		return matrix.values().stream().map(Map::values).flatMap(Collection::stream).min(Integer::compareTo).orElse(0);
+	}
+
+	/**
+	 * Gets the maximal distance between haplotypes.
+	 *
+	 * @return the maximal distance between haplotypes, or 0 if less then two
+	 *         haplotypes were used to create this distance matrix.
+	 */
+	public int getMaxDistance() {
+		return matrix.values().stream().map(Map::values).flatMap(Collection::stream).max(Integer::compareTo).orElse(0);
 	}
 
 }

@@ -36,6 +36,8 @@ public class DistanceMatrixTest {
 		Assert.assertEquals(1, map.size());
 		Assert.assertEquals(0, map.get(MASTER_HAPLOTYPE).size());
 		Assert.assertEquals(0, matrix.getDistances(MASTER_HAPLOTYPE).size());
+		Assert.assertEquals(0, matrix.getMinDistance());
+		Assert.assertEquals(0, matrix.getMaxDistance());
 	}
 
 	@Test
@@ -92,6 +94,20 @@ public class DistanceMatrixTest {
 		final DistanceMatrix matrix = new DistanceMatrix(Arrays.asList(MASTER_HAPLOTYPE, ALL_DIFF_HAPLOTYPE));
 		Assert.assertNull(matrix.getMatrix().get(MASTER_HAPLOTYPE).get(MASTER_HAPLOTYPE));
 		Assert.assertNull(matrix.getDistance(MASTER_HAPLOTYPE, MASTER_HAPLOTYPE));
+	}
+
+	@Test
+	public void testDistance1() {
+		final DistanceMatrix matrix = new DistanceMatrix(Arrays.asList(MASTER_HAPLOTYPE, MID_DIFF_HAPLOTYPE, MULTI_DIFF_HAPLOTYPE));
+		Assert.assertEquals(1, matrix.getMinDistance());
+		Assert.assertEquals(2, matrix.getMaxDistance());
+	}
+
+	@Test
+	public void testDistance2() {
+		final DistanceMatrix matrix = new DistanceMatrix(Arrays.asList(MASTER_HAPLOTYPE, MASTER_HAPLOTYPE, ALL_DIFF_HAPLOTYPE));
+		Assert.assertEquals(0, matrix.getMinDistance());
+		Assert.assertEquals(4, matrix.getMaxDistance());
 	}
 
 }
