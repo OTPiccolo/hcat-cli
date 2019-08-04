@@ -1,5 +1,7 @@
 package net.emb.hcat.cli.codon;
 
+import java.util.Map;
+
 import net.emb.hcat.cli.Sequence;
 
 /**
@@ -48,13 +50,32 @@ public class CodonTransformer {
 	/**
 	 * Transforms the sequence, searching for the first start Codon, continuing
 	 * from there. The start sequences searched depends on the
-	 * {@link CodonTransformationData} used.
+	 * {@link CodonTransformationData} used. If no start Codon was found in the
+	 * first three offsets, instead the transformation that produces the least
+	 * end codons and no invalid codons will be returned.
 	 *
 	 * @return A new sequence, containing the Codon transformation.
 	 */
 	public Sequence transformAuto() {
 		final String value = getSequence().getValue();
-		for (int i = 0; i + 2 < value.length(); i++) {
+		// Sequence too short.
+		if (value.length() < 5) {
+			return transform();
+		}
+
+		// Look for start codon.
+		Sequence transformed = findStart();
+		if (transformed == null) {
+			// If not found, look for sequence with least end codons.
+			transformed = findLeastEnd();
+		}
+		return transformed;
+	}
+
+	// Look for sequence with start codon.
+	private Sequence findStart() {
+		final String value = getSequence().getValue();
+		for (int i = 0; i < 3; i++) {
 			final String sub = value.substring(i, i + 3);
 			if (getData().start.containsKey(sub)) {
 				return transform(i);
@@ -63,13 +84,42 @@ public class CodonTransformer {
 		return null;
 	}
 
+	// Look for sequence that contains the least end codons and no invalid
+	// codons.
+	private Sequence findLeastEnd() {
+		final Map<String, Character> end = getData().end;
+		Sequence transformed = null;
+		int endCount = Integer.MAX_VALUE;
+		for (int i = 0; i < 3; i++) {
+			final Sequence transform = transform(i);
+			final String value = transform.getValue();
+			int currentCount = 0;
+			for (int j = 0; j < value.length(); j++) {
+				final char c = value.charAt(j);
+				if (c == invalidChar) {
+					currentCount = Integer.MAX_VALUE;
+					break;
+				}
+				if (end.containsValue(c)) {
+					currentCount++;
+				}
+			}
+			if (currentCount < endCount) {
+				transformed = transform;
+				endCount = currentCount;
+			}
+		}
+		return transformed;
+	}
+
 	/**
 	 * Transforms the sequence from the given offset.
 	 *
 	 * @param offset
 	 *            The offset when to begin the transformation. Must be a
 	 *            non-negative number.
-	 * @return A new sequence, containing the Codon transformation.
+	 * @return A new sequence, containing the Codon transformation. Trailing
+	 *         chars that can't be converted to a Codon will be dropped.
 	 * @throws IndexOutOfBoundsException
 	 *             If the offset is negative, or offset is not smaller than the
 	 *             length of the sequence.

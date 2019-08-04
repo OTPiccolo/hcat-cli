@@ -107,17 +107,24 @@ public class CodonTransformerTest {
 	}
 
 	@Test
-	public void startOnlyOnce() throws Exception {
+	public void transformAutoLeastEnds() throws Exception {
+		final Sequence sequence = new Sequence("AAABCAAABBBCCCCBA");
+		final CodonTransformer transformer = new CodonTransformer(testCode, sequence);
+		Assert.assertEquals("SABCE", transformer.transformAuto().getValue());
+	}
+
+	@Test
+	public void startAppearsOnlyOnce() throws Exception {
 		final Sequence sequence = new Sequence("ABCABCAAABBBCCCCBA");
 		final CodonTransformer transformer = new CodonTransformer(testCode, sequence);
-		Assert.assertEquals("SDABCE", transformer.transformAuto().getValue());
+		Assert.assertEquals("SDABCE", transformer.transform().getValue());
 	}
 
 	@Test
 	public void invalid() throws Exception {
-		final Sequence sequence = new Sequence("ABCABAAAABBBCCCCBA");
+		final Sequence sequence = new Sequence("CBAAABBBCCC");
 		final CodonTransformer transformer = new CodonTransformer(testCode, sequence);
-		Assert.assertEquals("S?ABCE", transformer.transformAuto().getValue());
+		Assert.assertEquals("ABC", transformer.transformAuto().getValue());
 	}
 
 	@Test
@@ -133,7 +140,9 @@ public class CodonTransformerTest {
 	public void echinodermTransformAuto() throws Exception {
 		for (final Sequence sequence : testSequences) {
 			final CodonTransformer transformer = new CodonTransformer(echinodermCode, sequence);
-			Assert.assertEquals(transformer.transform(), transformer.transformAuto());
+			final Sequence codon = transformer.transformAuto();
+			Assert.assertTrue("Sequence " + sequence.getName() + " was not correctly transformed.", CORRECT_TRANSFORMATION.matcher(codon.getValue()).matches());
+			Assert.assertEquals(transformer.transform(), codon);
 		}
 	}
 
