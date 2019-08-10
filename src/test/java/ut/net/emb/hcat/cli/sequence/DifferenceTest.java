@@ -1,4 +1,4 @@
-package ut.net.emb.hcat.cli;
+package ut.net.emb.hcat.cli.sequence;
 
 import org.junit.Assert;
 import org.junit.Test;
