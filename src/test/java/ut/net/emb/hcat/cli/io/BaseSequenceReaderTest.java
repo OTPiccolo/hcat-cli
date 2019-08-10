@@ -62,6 +62,7 @@ public class BaseSequenceReaderTest {
 	public void readEmpty() throws Exception {
 		final BaseSequenceReader baseReader = new BaseSequenceReader(new StringReader(""));
 		final List<Sequence> sequences = baseReader.read();
+		baseReader.close();
 		Assert.assertNotNull(sequences);
 		Assert.assertEquals(0, sequences.size());
 	}
@@ -70,6 +71,7 @@ public class BaseSequenceReaderTest {
 	public void readStandard() throws Exception {
 		final BaseSequenceReader baseReader = new BaseSequenceReader(new StringReader(getStandard()));
 		final List<Sequence> sequences = baseReader.read();
+		baseReader.close();
 		Assert.assertNotNull(sequences);
 		Assert.assertEquals(1, sequences.size());
 		Assert.assertEquals(STANDARD_ID, sequences.get(0).getName());
@@ -81,6 +83,7 @@ public class BaseSequenceReaderTest {
 	public void readAll() throws Exception {
 		final BaseSequenceReader baseReader = new BaseSequenceReader(new StringReader(getStandard() + getStandard2() + getShort() + getLong()));
 		final List<Sequence> sequences = baseReader.read();
+		baseReader.close();
 		Assert.assertNotNull(sequences);
 		Assert.assertEquals(4, sequences.size());
 		final Sequence standardSeq = sequences.get(0);
@@ -106,6 +109,7 @@ public class BaseSequenceReaderTest {
 		final BaseSequenceReader baseReader = new BaseSequenceReader(new StringReader(getStandard() + getStandard2()));
 		baseReader.setEnforceSameLength(true);
 		final List<Sequence> sequences = baseReader.read();
+		baseReader.close();
 		Assert.assertEquals(2, sequences.size());
 	}
 
@@ -114,6 +118,7 @@ public class BaseSequenceReaderTest {
 		final BaseSequenceReader baseReader = new BaseSequenceReader(new StringReader(getStandard() + getShort()));
 		baseReader.setEnforceSameLength(true);
 		baseReader.read();
+		baseReader.close();
 	}
 
 	@Test(expected = IOException.class)
@@ -121,6 +126,7 @@ public class BaseSequenceReaderTest {
 		final BaseSequenceReader baseReader = new BaseSequenceReader(new StringReader(getStandard() + getLong()));
 		baseReader.setEnforceSameLength(true);
 		baseReader.read();
+		baseReader.close();
 	}
 
 }

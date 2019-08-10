@@ -16,7 +16,7 @@ public class FastaWriterTest {
 	private static final Sequence SEQUENCE = new Sequence("ABCD");
 	private static final Sequence SEQUENCE_NAMED = new Sequence("DCBA", "Name");
 
-	@SuppressWarnings("unused")
+	@SuppressWarnings({ "unused", "resource" })
 	@Test(expected = IllegalArgumentException.class)
 	public void nullConstructor() throws Exception {
 		new FastaWriter(null);
@@ -27,6 +27,7 @@ public class FastaWriterTest {
 		final StringWriter writer = new StringWriter();
 		final FastaWriter fastaWriter = new FastaWriter(writer);
 		fastaWriter.write((Sequence) null);
+		fastaWriter.close();
 	}
 
 	@Test
@@ -34,6 +35,7 @@ public class FastaWriterTest {
 		final StringWriter writer = new StringWriter();
 		final FastaWriter fastaWriter = new FastaWriter(writer);
 		fastaWriter.write(SEQUENCE_NAMED);
+		fastaWriter.close();
 		final String output = writer.toString();
 		Assert.assertEquals(">Name\nDCBA\n".replace("\n", LINEBREAK), output);
 	}
@@ -43,6 +45,7 @@ public class FastaWriterTest {
 		final StringWriter writer = new StringWriter();
 		final FastaWriter fastaWriter = new FastaWriter(writer);
 		fastaWriter.write(SEQUENCE);
+		fastaWriter.close();
 		final String output = writer.toString();
 		Assert.assertEquals(">\nABCD\n".replace("\n", LINEBREAK), output);
 	}

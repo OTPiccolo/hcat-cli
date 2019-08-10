@@ -19,7 +19,7 @@ public class BaseSequenceWriterTest {
 	private static final Sequence SEQUENCE = new Sequence("ABCD");
 	private static final Sequence SEQUENCE_NAMED = new Sequence("DCBA", "Name");
 
-	@SuppressWarnings("unused")
+	@SuppressWarnings({ "unused", "resource" })
 	@Test(expected = IllegalArgumentException.class)
 	public void nullConstructor() throws Exception {
 		new BaseSequenceWriter(null);
@@ -28,32 +28,36 @@ public class BaseSequenceWriterTest {
 	@Test
 	public void writeEmpty() throws Exception {
 		final StringWriter writer = new StringWriter();
-		final BaseSequenceWriter fastaWriter = new BaseSequenceWriter(writer);
-		fastaWriter.write(Collections.emptyList());
+		final BaseSequenceWriter baseWriter = new BaseSequenceWriter(writer);
+		baseWriter.write(Collections.emptyList());
 		Assert.assertEquals(0, writer.getBuffer().length());
-		fastaWriter.write();
+		baseWriter.write();
 		Assert.assertEquals(0, writer.getBuffer().length());
+		baseWriter.close();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void writeNullList() throws Exception {
 		final StringWriter writer = new StringWriter();
-		final BaseSequenceWriter fastaWriter = new BaseSequenceWriter(writer);
-		fastaWriter.write((List<Sequence>) null);
+		final BaseSequenceWriter baseWriter = new BaseSequenceWriter(writer);
+		baseWriter.write((List<Sequence>) null);
+		baseWriter.close();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void writeNullArray() throws Exception {
 		final StringWriter writer = new StringWriter();
-		final BaseSequenceWriter fastaWriter = new BaseSequenceWriter(writer);
-		fastaWriter.write((Sequence[]) null);
+		final BaseSequenceWriter baseWriter = new BaseSequenceWriter(writer);
+		baseWriter.write((Sequence[]) null);
+		baseWriter.close();
 	}
 
 	@Test
 	public void writeNamed() throws Exception {
 		final StringWriter writer = new StringWriter();
-		final BaseSequenceWriter fastaWriter = new BaseSequenceWriter(writer);
-		fastaWriter.write(SEQUENCE_NAMED);
+		final BaseSequenceWriter baseWriter = new BaseSequenceWriter(writer);
+		baseWriter.write(SEQUENCE_NAMED);
+		baseWriter.close();
 		final String output = writer.toString();
 		Assert.assertEquals("Name\nDCBA\n".replace("\n", LINEBREAK), output);
 	}
@@ -61,8 +65,9 @@ public class BaseSequenceWriterTest {
 	@Test
 	public void writeUnnamed() throws Exception {
 		final StringWriter writer = new StringWriter();
-		final BaseSequenceWriter fastaWriter = new BaseSequenceWriter(writer);
-		fastaWriter.write(SEQUENCE);
+		final BaseSequenceWriter baseWriter = new BaseSequenceWriter(writer);
+		baseWriter.write(SEQUENCE);
+		baseWriter.close();
 		final String output = writer.toString();
 		Assert.assertEquals("\nABCD\n".replace("\n", LINEBREAK), output);
 	}
@@ -70,9 +75,10 @@ public class BaseSequenceWriterTest {
 	@Test
 	public void writeFull() throws Exception {
 		final StringWriter writer = new StringWriter();
-		final BaseSequenceWriter fastaWriter = new BaseSequenceWriter(writer);
-		fastaWriter.setLineBreak(0);
-		fastaWriter.write(SEQUENCE);
+		final BaseSequenceWriter baseWriter = new BaseSequenceWriter(writer);
+		baseWriter.setLineBreak(0);
+		baseWriter.write(SEQUENCE);
+		baseWriter.close();
 		final String output = writer.toString();
 		Assert.assertEquals("\nABCD\n".replace("\n", LINEBREAK), output);
 	}
@@ -80,9 +86,10 @@ public class BaseSequenceWriterTest {
 	@Test
 	public void writeEven() throws Exception {
 		final StringWriter writer = new StringWriter();
-		final BaseSequenceWriter fastaWriter = new BaseSequenceWriter(writer);
-		fastaWriter.setLineBreak(2);
-		fastaWriter.write(SEQUENCE);
+		final BaseSequenceWriter baseWriter = new BaseSequenceWriter(writer);
+		baseWriter.setLineBreak(2);
+		baseWriter.write(SEQUENCE);
+		baseWriter.close();
 		final String output = writer.toString();
 		Assert.assertEquals("\nAB\nCD\n".replace("\n", LINEBREAK), output);
 	}
@@ -90,9 +97,10 @@ public class BaseSequenceWriterTest {
 	@Test
 	public void writeUneven() throws Exception {
 		final StringWriter writer = new StringWriter();
-		final BaseSequenceWriter fastaWriter = new BaseSequenceWriter(writer);
-		fastaWriter.setLineBreak(3);
-		fastaWriter.write(SEQUENCE);
+		final BaseSequenceWriter baseWriter = new BaseSequenceWriter(writer);
+		baseWriter.setLineBreak(3);
+		baseWriter.write(SEQUENCE);
+		baseWriter.close();
 		final String output = writer.toString();
 		Assert.assertEquals("\nABC\nD\n".replace("\n", LINEBREAK), output);
 	}
@@ -100,8 +108,9 @@ public class BaseSequenceWriterTest {
 	@Test
 	public void writeList() throws Exception {
 		final StringWriter writer = new StringWriter();
-		final BaseSequenceWriter fastaWriter = new BaseSequenceWriter(writer);
-		fastaWriter.write(Arrays.asList(SEQUENCE, SEQUENCE_NAMED));
+		final BaseSequenceWriter baseWriter = new BaseSequenceWriter(writer);
+		baseWriter.write(Arrays.asList(SEQUENCE, SEQUENCE_NAMED));
+		baseWriter.close();
 		final String output = writer.toString();
 		Assert.assertEquals("\nABCD\nName\nDCBA\n".replace("\n", LINEBREAK), output);
 	}
@@ -109,8 +118,9 @@ public class BaseSequenceWriterTest {
 	@Test
 	public void writeArray() throws Exception {
 		final StringWriter writer = new StringWriter();
-		final BaseSequenceWriter fastaWriter = new BaseSequenceWriter(writer);
-		fastaWriter.write(new Sequence[] { SEQUENCE, SEQUENCE_NAMED });
+		final BaseSequenceWriter baseWriter = new BaseSequenceWriter(writer);
+		baseWriter.write(new Sequence[] { SEQUENCE, SEQUENCE_NAMED });
+		baseWriter.close();
 		final String output = writer.toString();
 		Assert.assertEquals("\nABCD\nName\nDCBA\n".replace("\n", LINEBREAK), output);
 	}
@@ -118,8 +128,9 @@ public class BaseSequenceWriterTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void lineBreakNegative() throws Exception {
 		final StringWriter writer = new StringWriter();
-		final BaseSequenceWriter fastaWriter = new BaseSequenceWriter(writer);
-		fastaWriter.setLineBreak(-1);
+		final BaseSequenceWriter baseWriter = new BaseSequenceWriter(writer);
+		baseWriter.setLineBreak(-1);
+		baseWriter.close();
 	}
 
 }

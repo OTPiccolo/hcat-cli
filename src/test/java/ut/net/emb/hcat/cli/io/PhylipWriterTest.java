@@ -26,6 +26,7 @@ public class PhylipWriterTest {
 		final StringWriter writer = new StringWriter();
 		final PhylipTcsWriter phylipTcsWriter = new PhylipTcsWriter(writer);
 		phylipTcsWriter.write(Collections.emptyList());
+		phylipTcsWriter.close();
 		Assert.assertEquals("0    0\n".replace("\n", LINEBREAK), writer.toString());
 	}
 
@@ -34,6 +35,7 @@ public class PhylipWriterTest {
 		final StringWriter writer = new StringWriter();
 		final PhylipTcsWriter phylipTcsWriter = new PhylipTcsWriter(writer);
 		phylipTcsWriter.write(SEQUENCE_NAMED);
+		phylipTcsWriter.close();
 		final String output = writer.toString();
 		Assert.assertEquals("1    4\nName\nABCD\n".replace("\n", LINEBREAK), output);
 	}
@@ -43,6 +45,7 @@ public class PhylipWriterTest {
 		final StringWriter writer = new StringWriter();
 		final PhylipTcsWriter phylipTcsWriter = new PhylipTcsWriter(writer);
 		phylipTcsWriter.write(SEQUENCE_UNNAMED);
+		phylipTcsWriter.close();
 		final String output = writer.toString();
 		Assert.assertEquals("1    4\n\nDCBA\n".replace("\n", LINEBREAK), output);
 	}
@@ -52,6 +55,7 @@ public class PhylipWriterTest {
 		final StringWriter writer = new StringWriter();
 		final PhylipTcsWriter phylipTcsWriter = new PhylipTcsWriter(writer);
 		phylipTcsWriter.write(Arrays.asList(SEQUENCE_NAMED, SEQUENCE_UNNAMED));
+		phylipTcsWriter.close();
 		final String output = writer.toString();
 		Assert.assertEquals("2    4\nName\nABCD\n\nDCBA\n".replace("\n", LINEBREAK), output);
 	}
@@ -61,6 +65,7 @@ public class PhylipWriterTest {
 		final StringWriter writer = new StringWriter();
 		final PhylipTcsWriter phylipTcsWriter = new PhylipTcsWriter(writer);
 		phylipTcsWriter.write(Arrays.asList(SEQUENCE_NAMED, SEQUENCE_TOO_SHORT));
+		phylipTcsWriter.close();
 	}
 
 	@Test(expected = IOException.class)
@@ -68,6 +73,7 @@ public class PhylipWriterTest {
 		final StringWriter writer = new StringWriter();
 		final PhylipTcsWriter phylipTcsWriter = new PhylipTcsWriter(writer);
 		phylipTcsWriter.write(Arrays.asList(SEQUENCE_NAMED, SEQUENCE_TOO_LONG));
+		phylipTcsWriter.close();
 	}
 
 }

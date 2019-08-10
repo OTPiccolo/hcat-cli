@@ -66,6 +66,7 @@ public class FastaReaderTest {
 	public void readEmpty() throws Exception {
 		final FastaReader fasta = new FastaReader(new StringReader(""));
 		final List<Sequence> sequences = fasta.read();
+		fasta.close();
 		Assert.assertNotNull(sequences);
 		Assert.assertEquals(0, sequences.size());
 	}
@@ -74,6 +75,7 @@ public class FastaReaderTest {
 	public void readStandard() throws Exception {
 		final FastaReader fasta = new FastaReader(new StringReader(getStandard()));
 		final List<Sequence> sequences = fasta.read();
+		fasta.close();
 		Assert.assertNotNull(sequences);
 		Assert.assertEquals(1, sequences.size());
 		Assert.assertEquals(STANDARD_ID, sequences.get(0).getName());
@@ -85,6 +87,7 @@ public class FastaReaderTest {
 	public void readComment() throws Exception {
 		final FastaReader fasta = new FastaReader(new StringReader(getComment()));
 		final List<Sequence> sequences = fasta.read();
+		fasta.close();
 		Assert.assertNotNull(sequences);
 		Assert.assertEquals(1, sequences.size());
 		Assert.assertEquals(COMMENT_ID, sequences.get(0).getName());
@@ -96,6 +99,7 @@ public class FastaReaderTest {
 	public void readLong() throws Exception {
 		final FastaReader fasta = new FastaReader(new StringReader(getLong()));
 		final List<Sequence> sequences = fasta.read();
+		fasta.close();
 		Assert.assertNotNull(sequences);
 		Assert.assertEquals(1, sequences.size());
 		Assert.assertEquals(LONG_ID, sequences.get(0).getName());
@@ -107,6 +111,7 @@ public class FastaReaderTest {
 	public void readAll() throws Exception {
 		final FastaReader fasta = new FastaReader(new StringReader(getStandard() + getComment() + getLong()));
 		final List<Sequence> sequences = fasta.read();
+		fasta.close();
 		Assert.assertNotNull(sequences);
 		Assert.assertEquals(3, sequences.size());
 		Assert.assertEquals(STANDARD_ID, sequences.get(0).getName());
@@ -125,6 +130,7 @@ public class FastaReaderTest {
 		final FastaReader fasta = new FastaReader(new StringReader(getStandard() + getComment()));
 		fasta.setEnforceSameLength(true);
 		final List<Sequence> sequences = fasta.read();
+		fasta.close();
 		Assert.assertEquals(2, sequences.size());
 	}
 
@@ -133,6 +139,7 @@ public class FastaReaderTest {
 		final FastaReader fasta = new FastaReader(new StringReader(getStandard() + getLong()));
 		fasta.setEnforceSameLength(true);
 		fasta.read();
+		fasta.close();
 	}
 
 	@Test
@@ -142,6 +149,7 @@ public class FastaReaderTest {
 			final FastaReader fasta = new FastaReader(reader);
 			fasta.setEnforceSameLength(true);
 			sequences = fasta.read();
+			fasta.close();
 		}
 
 		Assert.assertNotNull(sequences);
@@ -155,6 +163,7 @@ public class FastaReaderTest {
 			final FastaReader fasta = new FastaReader(reader);
 			fasta.setEnforceSameLength(true);
 			sequences = fasta.read();
+			fasta.close();
 		}
 
 		Assert.assertNotNull(sequences);

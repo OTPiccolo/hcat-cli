@@ -20,6 +20,7 @@ public class PhylipTcsWriterTest {
 		final StringWriter writer = new StringWriter();
 		final PhylipTcsWriter phylipTcsWriter = new PhylipTcsWriter(writer);
 		phylipTcsWriter.write(SEQUENCE_NAME_TOO_LONG);
+		phylipTcsWriter.close();
 		final String output = writer.toString();
 		Assert.assertEquals("1    4\nNameIsToo\nABCD\n".replace("\n", LINEBREAK), output);
 	}
