@@ -15,7 +15,7 @@ import net.emb.hcat.cli.sequence.Sequence;
  * @author Heiko Mattes
  *
  */
-public class BaseSequenceWriter implements ISequenceWriter, AutoCloseable {
+public class BaseSequenceWriter implements ISequenceWriter {
 
 	private final BufferedWriter writer;
 

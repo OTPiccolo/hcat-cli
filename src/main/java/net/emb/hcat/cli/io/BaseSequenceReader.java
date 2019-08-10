@@ -16,7 +16,7 @@ import net.emb.hcat.cli.sequence.Sequence;
  * @author Heiko Mattes
  *
  */
-public class BaseSequenceReader implements ISequenceReader, AutoCloseable {
+public class BaseSequenceReader implements ISequenceReader {
 
 	private final BufferedReader reader;
 

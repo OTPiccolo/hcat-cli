@@ -1,5 +1,6 @@
 package net.emb.hcat.cli.io;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -11,8 +12,7 @@ import net.emb.hcat.cli.sequence.Sequence;
  *
  * @author Heiko Mattes
  */
-@FunctionalInterface
-public interface ISequenceWriter {
+public interface ISequenceWriter extends Closeable {
 
 	/**
 	 * Writes all sequences.

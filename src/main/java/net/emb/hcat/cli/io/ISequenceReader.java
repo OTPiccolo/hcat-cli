@@ -1,5 +1,6 @@
 package net.emb.hcat.cli.io;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
 
@@ -10,8 +11,7 @@ import net.emb.hcat.cli.sequence.Sequence;
  *
  * @author Heiko Mattes
  */
-@FunctionalInterface
-public interface ISequenceReader {
+public interface ISequenceReader extends Closeable {
 
 	/**
 	 * Reads in sequences.
