@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -19,6 +18,8 @@ import net.emb.hcat.cli.haplotype.Haplotype;
 import net.emb.hcat.cli.haplotype.HaplotypeTransformer;
 import net.emb.hcat.cli.io.FastaReader;
 import net.emb.hcat.cli.io.HaplotypeWriter;
+import net.emb.hcat.cli.sequence.Difference;
+import net.emb.hcat.cli.sequence.Sequence;
 
 /**
  * Main class.
@@ -118,8 +119,7 @@ public class Main {
 
 		// Read input sequences
 		final List<Sequence> sequences;
-		try (Reader reader = new InputStreamReader(new FileInputStream(input), charset)) {
-			final FastaReader fasta = new FastaReader(reader);
+		try (FastaReader fasta = new FastaReader(new InputStreamReader(new FileInputStream(input), charset))) {
 			fasta.setEnforceSameLength(true);
 			sequences = fasta.read();
 		} catch (final FileNotFoundException e) {

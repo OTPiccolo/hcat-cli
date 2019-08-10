@@ -7,8 +7,8 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.emb.hcat.cli.Sequence;
 import net.emb.hcat.cli.io.BaseSequenceReader;
+import net.emb.hcat.cli.sequence.Sequence;
 
 @SuppressWarnings("javadoc")
 public class BaseSequenceReaderTest {

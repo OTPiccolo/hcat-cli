@@ -6,7 +6,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.emb.hcat.cli.Sequence;
+import net.emb.hcat.cli.sequence.Sequence;
 
 /**
  * A base implementation of a sequence reader. Each sequence must be a line with

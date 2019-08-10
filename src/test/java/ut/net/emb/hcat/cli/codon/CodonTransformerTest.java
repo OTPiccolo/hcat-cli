@@ -11,11 +11,11 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import net.emb.hcat.cli.Sequence;
 import net.emb.hcat.cli.codon.CodonTransformationData;
 import net.emb.hcat.cli.codon.CodonTransformer;
 import net.emb.hcat.cli.io.CodonTableReader;
 import net.emb.hcat.cli.io.FastaReader;
+import net.emb.hcat.cli.sequence.Sequence;
 
 @SuppressWarnings("javadoc")
 public class CodonTransformerTest {

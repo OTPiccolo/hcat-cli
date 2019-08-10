@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.emb.hcat.cli.Difference;
-import net.emb.hcat.cli.Sequence;
+import net.emb.hcat.cli.sequence.Difference;
+import net.emb.hcat.cli.sequence.Sequence;
 
 /**
  * A distance matrix describes the distance of each haplotype to each other

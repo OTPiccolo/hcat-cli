@@ -3,7 +3,7 @@ package net.emb.hcat.cli.io;
 import java.io.IOException;
 import java.io.Writer;
 
-import net.emb.hcat.cli.Sequence;
+import net.emb.hcat.cli.sequence.Sequence;
 
 /**
  * A writer to write out sequences of DNA in FASTA format.

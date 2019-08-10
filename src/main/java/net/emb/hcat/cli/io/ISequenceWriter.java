@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import net.emb.hcat.cli.Sequence;
+import net.emb.hcat.cli.sequence.Sequence;
 
 /**
  * An interface to read in sequences.

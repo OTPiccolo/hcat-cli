@@ -1,4 +1,4 @@
-package net.emb.hcat.cli;
+package net.emb.hcat.cli.sequence;
 
 import java.util.SortedSet;
 import java.util.TreeSet;

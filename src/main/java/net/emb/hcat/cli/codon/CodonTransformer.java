@@ -2,7 +2,7 @@ package net.emb.hcat.cli.codon;
 
 import java.util.Map;
 
-import net.emb.hcat.cli.Sequence;
+import net.emb.hcat.cli.sequence.Sequence;
 
 /**
  * Changes a sequence to a codon.

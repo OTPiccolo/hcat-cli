@@ -1,4 +1,4 @@
-package net.emb.hcat.cli;
+package net.emb.hcat.cli.sequence;
 
 /**
  * A sequence contains the information about the DNA string.

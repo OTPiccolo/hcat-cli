@@ -9,9 +9,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
-import net.emb.hcat.cli.Difference;
-import net.emb.hcat.cli.Sequence;
 import net.emb.hcat.cli.haplotype.Haplotype;
+import net.emb.hcat.cli.sequence.Difference;
+import net.emb.hcat.cli.sequence.Sequence;
 
 /**
  * A writer to write out haplotypes as text.

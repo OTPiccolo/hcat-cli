@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 
-import net.emb.hcat.cli.Sequence;
+import net.emb.hcat.cli.sequence.Sequence;
 
 /**
  * A base implementation of a sequence writer that writes down the name of each

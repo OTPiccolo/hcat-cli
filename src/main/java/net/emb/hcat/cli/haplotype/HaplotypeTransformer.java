@@ -6,8 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.emb.hcat.cli.Difference;
-import net.emb.hcat.cli.Sequence;
+import net.emb.hcat.cli.sequence.Difference;
+import net.emb.hcat.cli.sequence.Sequence;
 
 /**
  * Splicer can compare sequences with each other to compute differences.

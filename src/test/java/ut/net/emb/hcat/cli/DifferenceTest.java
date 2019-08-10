@@ -3,8 +3,8 @@ package ut.net.emb.hcat.cli;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.emb.hcat.cli.Difference;
-import net.emb.hcat.cli.Sequence;
+import net.emb.hcat.cli.sequence.Difference;
+import net.emb.hcat.cli.sequence.Sequence;
 
 @SuppressWarnings("javadoc")
 public class DifferenceTest {

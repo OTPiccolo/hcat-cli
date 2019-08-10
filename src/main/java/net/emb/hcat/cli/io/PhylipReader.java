@@ -3,7 +3,7 @@ package net.emb.hcat.cli.io;
 import java.io.IOException;
 import java.io.Reader;
 
-import net.emb.hcat.cli.Sequence;
+import net.emb.hcat.cli.sequence.Sequence;
 
 /**
  * A reader to read in sequences of DNA in Pyhlip format.

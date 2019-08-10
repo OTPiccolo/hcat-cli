@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 
-import net.emb.hcat.cli.Sequence;
+import net.emb.hcat.cli.sequence.Sequence;
 
 /**
  * A writer to write out sequences of DNA in Phylip format.
