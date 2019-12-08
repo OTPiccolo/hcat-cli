@@ -2,7 +2,6 @@ package ut.net.emb.hcat.cli.codon;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -47,8 +46,7 @@ public class CodonTransformerTest {
 		}
 		Assert.assertNotNull("Did not find Echinoderm Code in default table.", echinodermCode);
 
-		try (Reader reader = new InputStreamReader(CodonTransformerTest.class.getResourceAsStream("/fasta-testdata1.txt"), StandardCharsets.UTF_8)) {
-			final FastaReader fasta = new FastaReader(reader);
+		try (FastaReader fasta = new FastaReader(new InputStreamReader(CodonTransformerTest.class.getResourceAsStream("/fasta-testdata1.txt"), StandardCharsets.UTF_8))) {
 			fasta.setEnforceSameLength(true);
 			testSequences = fasta.read();
 		}

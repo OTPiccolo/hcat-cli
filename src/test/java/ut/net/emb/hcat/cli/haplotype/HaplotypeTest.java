@@ -1,7 +1,6 @@
 package ut.net.emb.hcat.cli.haplotype;
 
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
@@ -115,8 +114,7 @@ public class HaplotypeTest {
 	@Test
 	public void testData() throws Exception {
 		List<Sequence> sequences;
-		try (Reader reader = new InputStreamReader(getClass().getResourceAsStream("/fasta-testdata1.txt"), StandardCharsets.UTF_8)) {
-			final FastaReader fasta = new FastaReader(reader);
+		try (FastaReader fasta = new FastaReader(new InputStreamReader(getClass().getResourceAsStream("/fasta-testdata1.txt"), StandardCharsets.UTF_8))) {
 			fasta.setEnforceSameLength(true);
 			sequences = fasta.read();
 		}

@@ -103,10 +103,12 @@ public class BaseSequenceWriter implements ISequenceWriter {
 	}
 
 	/**
-	 * Writes the name of a sequence. Line break will be inserted after name.
+	 * Writes the name of a sequence, if non-null. Line break will be inserted
+	 * after name.
 	 *
 	 * @param name
-	 *            The name of the sequence. May be <code>null</code>.
+	 *            The name of the sequence. May be <code>null</code>, but then
+	 *            will be skipped. A line break will be inserted anyway.
 	 * @throws IOException
 	 *             If an I/O error occurs.
 	 */

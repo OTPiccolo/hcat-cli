@@ -10,8 +10,22 @@ import java.io.Writer;
  */
 public enum ESequenceType {
 
-	FASTA, PHYLIP, PHYLIP_TCS;
+	/** Fasta format */
+	FASTA,
+	/** Phylip format */
+	PHYLIP,
+	/** Phylip TCS format */
+	PHYLIP_TCS,
+	/** CSV (Comma Separated Value) format */
+	CSV;
 
+	/**
+	 * Gets a reader that can read sequences in the format of this enum.
+	 *
+	 * @param reader
+	 *            The underlying reader to read sequences from.
+	 * @return The reader.
+	 */
 	public ISequenceReader createReader(final Reader reader) {
 		switch (this) {
 		case FASTA:
@@ -20,12 +34,21 @@ public enum ESequenceType {
 			return new PhylipReader(reader);
 		case PHYLIP_TCS:
 			return new PhylipTcsReader(reader);
+		case CSV:
+			return new CsvReader(reader);
 		default:
 			// Will never happen.
 			throw new IllegalStateException("Enum not fully implemented. Missing case: " + this);
 		}
 	}
 
+	/**
+	 * Gets a writer that can write sequnces in the format of this enum.
+	 *
+	 * @param writer
+	 *            The underlying writer to write sequnces to.
+	 * @return The writer.
+	 */
 	public ISequenceWriter createWriter(final Writer writer) {
 		switch (this) {
 		case FASTA:
@@ -34,6 +57,8 @@ public enum ESequenceType {
 			return new PhylipWriter(writer);
 		case PHYLIP_TCS:
 			return new PhylipTcsWriter(writer);
+		case CSV:
+			return new CsvWriter(writer);
 		default:
 			// Will never happen.
 			throw new IllegalStateException("Enum not fully implemented. Missing case: " + this);
