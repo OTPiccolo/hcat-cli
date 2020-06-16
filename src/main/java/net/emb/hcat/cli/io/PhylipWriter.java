@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.emb.hcat.cli.sequence.Sequence;
 
 /**
@@ -13,6 +16,8 @@ import net.emb.hcat.cli.sequence.Sequence;
  * @author Heiko Mattes
  */
 public class PhylipWriter extends BaseSequenceWriter {
+
+	private static final Logger log = LoggerFactory.getLogger(PhylipWriter.class);
 
 	private static final int MAX_LINE_LENGTH = 60;
 
@@ -39,6 +44,7 @@ public class PhylipWriter extends BaseSequenceWriter {
 		seqSize = sequences.size();
 		seqLength = seqSize == 0 ? 0 : sequences.get(0).getLength();
 
+		log.debug("Writing sequences with following parameters. Line break after: {} / Sequence length: {} / Sequence size: {}", getLineBreak(), seqLength, seqSize);
 		super.write(sequences);
 	}
 

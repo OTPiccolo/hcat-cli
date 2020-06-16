@@ -2,6 +2,10 @@ package net.emb.hcat.cli.io;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.emb.hcat.cli.sequence.Sequence;
 
@@ -11,6 +15,8 @@ import net.emb.hcat.cli.sequence.Sequence;
  * @author Heiko Mattes
  */
 public class CsvReader extends BaseSequenceReader {
+
+	private static final Logger log = LoggerFactory.getLogger(CsvReader.class);
 
 	private static final char DEFAULT_DELIMITER = ',';
 
@@ -42,6 +48,12 @@ public class CsvReader extends BaseSequenceReader {
 	}
 
 	@Override
+	public List<Sequence> read() throws IOException {
+		log.debug("Reading sequences with following parameters. Same length: {} / Name included: {} / Delimiter: '{}'", isEnforceSameLength(), isNameIncluded(), getDelimiter());
+		return super.read();
+	}
+
+	@Override
 	protected void readHeader() throws IOException {
 		// Some CSV files (Excel specific) can have a delimiter specificiation
 		// in their first line in the form of: sep=,
@@ -55,6 +67,7 @@ public class CsvReader extends BaseSequenceReader {
 			if (delimiterHeader.startsWith("sep=")) {
 				delimiterFound = true;
 				setDelimiter(delimiterHeader.charAt(4));
+				log.info("Found delimiter character in CSV file: '{}'", getDelimiter());
 			}
 		}
 
@@ -109,7 +122,7 @@ public class CsvReader extends BaseSequenceReader {
 
 	/**
 	 * Gets whether the name is included as first value in sequence.
-	 * 
+	 *
 	 * @return <code>true</code>, if name is included, <code>false</code>
 	 *         otherwise.
 	 */
@@ -119,7 +132,7 @@ public class CsvReader extends BaseSequenceReader {
 
 	/**
 	 * Sets whether the name is included as first value in sequence.
-	 * 
+	 *
 	 * @param nameIncluded
 	 *            <code>true</code>, if name is included, <code>false</code>
 	 *            otherwise.

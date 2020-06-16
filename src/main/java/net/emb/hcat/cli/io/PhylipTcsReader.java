@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.emb.hcat.cli.sequence.Sequence;
 
 /**
@@ -14,6 +17,8 @@ import net.emb.hcat.cli.sequence.Sequence;
  * @author Heiko Mattes
  */
 public class PhylipTcsReader extends BaseSequenceReader {
+
+	private static final Logger log = LoggerFactory.getLogger(PhylipTcsReader.class);
 
 	private static final int MAX_LENGTH_NAME = 9;
 	private static final String HEADER_REGEX = "^(\\d++)    (\\d++)$";
@@ -32,6 +37,12 @@ public class PhylipTcsReader extends BaseSequenceReader {
 	}
 
 	@Override
+	public List<Sequence> read() throws IOException {
+		log.debug("Reading sequences with following parameters. Same length: {}", isEnforceSameLength());
+		return super.read();
+	}
+
+	@Override
 	protected void readHeader() throws IOException {
 		final String header = readLine();
 		if (header == null) {
@@ -45,6 +56,7 @@ public class PhylipTcsReader extends BaseSequenceReader {
 
 		expectedSeqCount = Integer.parseInt(matcher.group(1));
 		expectedSeqLength = Integer.parseInt(matcher.group(2));
+		log.info("Expecting {} sequence(s), each being {} character(s) long.", expectedSeqCount, expectedSeqLength);
 	}
 
 	@Override
@@ -73,7 +85,7 @@ public class PhylipTcsReader extends BaseSequenceReader {
 	/**
 	 * Gets the expected sequence count of all sequences read by this reader.
 	 * Information is read from header.
-	 * 
+	 *
 	 * @return The expected sequence count.
 	 */
 	protected int getExpectedSeqCount() {
@@ -83,7 +95,7 @@ public class PhylipTcsReader extends BaseSequenceReader {
 	/**
 	 * Gets the expected sequence length for each sequence read by this reader.
 	 * Information is read from header.
-	 * 
+	 *
 	 * @return The expected sequence length.
 	 */
 	protected int getExpectedSeqLength() {

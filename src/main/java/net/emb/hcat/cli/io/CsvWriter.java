@@ -2,6 +2,12 @@ package net.emb.hcat.cli.io;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import net.emb.hcat.cli.sequence.Sequence;
 
 /**
  * A writer to write out sequences of DNA in CSV format.
@@ -9,6 +15,8 @@ import java.io.Writer;
  * @author Heiko Mattes
  */
 public class CsvWriter extends BaseSequenceWriter {
+
+	private static final Logger log = LoggerFactory.getLogger(CsvWriter.class);
 
 	private static final char DEFAULT_DELIMITER = ',';
 
@@ -37,6 +45,12 @@ public class CsvWriter extends BaseSequenceWriter {
 	public CsvWriter(final Writer writer, final char delimiter) {
 		super(writer);
 		this.delimiter = delimiter;
+	}
+
+	@Override
+	public void write(final List<Sequence> sequences) throws IOException {
+		log.debug("Writing sequences with following parameters. Delimiter: '{}' / Line break after: {} / Excel Header: {}", getDelimiter(), getLineBreak(), isExcelHeader());
+		super.write(sequences);
 	}
 
 	@Override
@@ -86,7 +100,7 @@ public class CsvWriter extends BaseSequenceWriter {
 	/**
 	 * Gets whether an Excel specific header should be written at the start of
 	 * the file that declares the used delimiter.
-	 * 
+	 *
 	 * @return <code>true</code>, if the header should be included,
 	 *         <code>false</code> otherwise.
 	 */
@@ -97,7 +111,7 @@ public class CsvWriter extends BaseSequenceWriter {
 	/**
 	 * Sets whether an Excel specific header should be written at the start of
 	 * the file that declares the used delimiter.
-	 * 
+	 *
 	 * @param excelHeader
 	 *            <code>true</code>, if the header should be included,
 	 *            <code>false</code> otherwise.

@@ -6,6 +6,9 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.emb.hcat.cli.sequence.Sequence;
 
 /**
@@ -17,6 +20,8 @@ import net.emb.hcat.cli.sequence.Sequence;
  *
  */
 public class BaseSequenceReader implements ISequenceReader {
+
+	private static final Logger log = LoggerFactory.getLogger(BaseSequenceReader.class);
 
 	private final BufferedReader reader;
 
@@ -37,8 +42,11 @@ public class BaseSequenceReader implements ISequenceReader {
 
 	@Override
 	public List<Sequence> read() throws IOException {
+		log.info("Reading sequences.");
 		readHeader();
-		return readSequences();
+		final List<Sequence> sequences = readSequences();
+		log.info("Read {} sequence(s) successfully.", sequences.size());
+		return sequences;
 	}
 
 	/**
@@ -57,6 +65,7 @@ public class BaseSequenceReader implements ISequenceReader {
 		Sequence sequence;
 
 		while ((sequence = readSequence()) != null) {
+			log.debug("Sequence read: {}", sequence);
 			if (isEnforceSameLength() && previousSize > 0 && previousSize != sequence.getLength()) {
 				throw new IOException("Sequence doesn't match in length with previous sequence. Name of sequence: " + sequence.getName());
 			}
@@ -111,6 +120,7 @@ public class BaseSequenceReader implements ISequenceReader {
 	 */
 	protected String readLine() throws IOException {
 		final String line = getReader().readLine();
+		log.trace("Read line: {}", line);
 		if (line == null || isData(line)) {
 			return line;
 		}

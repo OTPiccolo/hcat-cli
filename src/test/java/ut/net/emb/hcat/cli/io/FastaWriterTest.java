@@ -50,4 +50,14 @@ public class FastaWriterTest {
 		Assert.assertEquals(">\nABCD\n".replace("\n", LINEBREAK), output);
 	}
 
+	@Test
+	public void writeMultiple() throws Exception {
+		final StringWriter writer = new StringWriter();
+		final FastaWriter fastaWriter = new FastaWriter(writer);
+		fastaWriter.write(SEQUENCE, SEQUENCE_NAMED);
+		fastaWriter.close();
+		final String output = writer.toString();
+		Assert.assertEquals(">\nABCD\n>Name\nDCBA\n".replace("\n", LINEBREAK), output);
+	}
+
 }

@@ -2,6 +2,9 @@ package net.emb.hcat.cli.codon;
 
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.emb.hcat.cli.sequence.Sequence;
 
 /**
@@ -10,6 +13,8 @@ import net.emb.hcat.cli.sequence.Sequence;
  * @author Heiko Mattes
  */
 public class CodonTransformer {
+
+	private static final Logger log = LoggerFactory.getLogger(CodonTransformer.class);
 
 	private static final char invalidChar = '?';
 
@@ -57,9 +62,11 @@ public class CodonTransformer {
 	 * @return A new sequence, containing the Codon transformation.
 	 */
 	public Sequence transformAuto() {
+		log.debug("Automatic transformation. Checking offsets.");
 		final String value = getSequence().getValue();
 		// Sequence too short.
 		if (value.length() < 5) {
+			log.debug("Sequence length too short. Starting at offset zero.");
 			return transform();
 		}
 
@@ -78,6 +85,7 @@ public class CodonTransformer {
 		for (int i = 0; i < 3; i++) {
 			final String sub = value.substring(i, i + 3);
 			if (getData().start.containsKey(sub)) {
+				log.debug("Found start codon at offset: {}", i);
 				return transform(i);
 			}
 		}
@@ -87,6 +95,7 @@ public class CodonTransformer {
 	// Look for sequence that contains the least end codons and no invalid
 	// codons.
 	private Sequence findLeastEnd() {
+		log.debug("Looking for least end codons.");
 		final Map<String, Character> end = getData().end;
 		Sequence transformed = null;
 		int endCount = Integer.MAX_VALUE;
@@ -104,10 +113,20 @@ public class CodonTransformer {
 					currentCount++;
 				}
 			}
+			log.debug("At offset {}, found {} end codon(s)", i, currentCount);
 			if (currentCount < endCount) {
 				transformed = transform;
 				endCount = currentCount;
+				// No end codons found, can't get better than that.
+				if (endCount == 0) {
+					break;
+				}
 			}
+		}
+
+		// All sequences contained invalid characters, so just use offset zero.
+		if (transformed == null) {
+			transformed = transform();
 		}
 		return transformed;
 	}
@@ -131,6 +150,8 @@ public class CodonTransformer {
 
 		final String value = getSequence().getValue();
 		final String name = getSequence().getName();
+		log.debug("Transforming sequence with name \"{}\" from offset {}: {}", name, offset, value);
+
 		boolean startFound = false;
 		final StringBuilder builder = new StringBuilder(value.length() / 3 + 1);
 
@@ -148,7 +169,9 @@ public class CodonTransformer {
 			}
 		}
 
-		return new Sequence(builder.toString(), name == null ? null : "Codon Transformed: " + name);
+		final Sequence transformedSeq = new Sequence(builder.toString(), name == null ? null : "Codon Transformed: " + name);
+		log.debug("Transformed sequence: {}", transformedSeq);
+		return transformedSeq;
 	}
 
 	/**

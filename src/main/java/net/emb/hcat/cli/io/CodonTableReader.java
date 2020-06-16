@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.emb.hcat.cli.codon.CodonTransformationData;
 
 /**
@@ -23,6 +26,8 @@ public class CodonTableReader {
 
 	// Reading data from:
 	// https://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi
+
+	private static final Logger log = LoggerFactory.getLogger(CodonTableReader.class);
 
 	private static final class CodonData {
 		public String name;
@@ -49,6 +54,7 @@ public class CodonTableReader {
 	 * @return A list containing all found {@link CodonTransformationData}.
 	 */
 	public static final List<CodonTransformationData> readDefaultTable() {
+		log.info("Reading default codon table.");
 		try (Reader reader = new InputStreamReader(CodonTableReader.class.getResourceAsStream("/codonTable.txt"), StandardCharsets.UTF_8)) {
 			final CodonTableReader codonReader = new CodonTableReader(reader);
 			return codonReader.read();
@@ -83,18 +89,21 @@ public class CodonTableReader {
 	 *             An I/O exception.
 	 */
 	public List<CodonTransformationData> read() throws IOException {
+		log.info("Reading codon table.");
 		final ArrayList<CodonTransformationData> list = new ArrayList<CodonTransformationData>();
 
 		CodonData data = new CodonData();
 		boolean matched = false;
 		String line;
 		while ((line = reader.readLine()) != null) {
+			log.trace("Read line: {}", line);
 			matched = false;
 			Matcher matcher = NAME_PATTERN.matcher(line);
 			if (matcher.matches()) {
 				data.number = Integer.parseInt(matcher.group(1));
 				data.name = matcher.group(2);
 				matched = true;
+				log.debug("Name: ({}) {}", data.number, data.name);
 			}
 
 			if (!matched) {
@@ -102,6 +111,7 @@ public class CodonTableReader {
 				if (matcher.matches()) {
 					data.aa = matcher.group(2);
 					matched = true;
+					log.debug("AAs: {}", data.aa);
 				}
 			}
 
@@ -110,6 +120,7 @@ public class CodonTableReader {
 				if (matcher.matches()) {
 					data.start = matcher.group(2);
 					matched = true;
+					log.debug("Start: {}", data.start);
 				}
 			}
 
@@ -119,10 +130,13 @@ public class CodonTableReader {
 					final String base = matcher.group(1);
 					if ("Base1".equals(base)) {
 						data.base1 = matcher.group(2);
+						log.debug("Base1: {}", data.base1);
 					} else if ("Base2".equals(base)) {
 						data.base2 = matcher.group(2);
+						log.debug("Base2: {}", data.base2);
 					} else {
 						data.base3 = matcher.group(2);
+						log.debug("Base3: {}", data.base3);
 					}
 					matched = true;
 				}
@@ -134,6 +148,7 @@ public class CodonTableReader {
 			}
 		}
 
+		log.info("Read {} entries.", list.size());
 		return list;
 	}
 
@@ -176,6 +191,7 @@ public class CodonTableReader {
 			}
 		}
 
+		log.debug("Created data: {}", transData);
 		return transData;
 	}
 

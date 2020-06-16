@@ -2,6 +2,10 @@ package net.emb.hcat.cli.io;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.emb.hcat.cli.sequence.Sequence;
 
@@ -11,6 +15,8 @@ import net.emb.hcat.cli.sequence.Sequence;
  * @author Heiko Mattes
  */
 public class FastaWriter extends BaseSequenceWriter {
+
+	private static final Logger log = LoggerFactory.getLogger(FastaWriter.class);
 
 	private static final char ID_CHAR = '>';
 
@@ -22,6 +28,12 @@ public class FastaWriter extends BaseSequenceWriter {
 	 */
 	public FastaWriter(final Writer writer) {
 		super(writer);
+	}
+
+	@Override
+	public void write(final List<Sequence> sequences) throws IOException {
+		log.debug("Writing sequences with following parameters. Line break after: {}", getLineBreak());
+		super.write(sequences);
 	}
 
 	@Override

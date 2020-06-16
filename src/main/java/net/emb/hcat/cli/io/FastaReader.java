@@ -2,6 +2,10 @@ package net.emb.hcat.cli.io;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.emb.hcat.cli.sequence.Sequence;
 
@@ -13,6 +17,8 @@ import net.emb.hcat.cli.sequence.Sequence;
 public class FastaReader extends BaseSequenceReader {
 
 	// FASTA format: https://de.wikipedia.org/wiki/FASTA-Format
+
+	private static final Logger log = LoggerFactory.getLogger(FastaReader.class);
 
 	private static final char ID_CHAR = '>';
 	private static final char COMMENT_CHAR = ';';
@@ -28,6 +34,12 @@ public class FastaReader extends BaseSequenceReader {
 	 */
 	public FastaReader(final Reader reader) {
 		super(reader);
+	}
+
+	@Override
+	public List<Sequence> read() throws IOException {
+		log.debug("Reading sequences with following parameters. Same length: {}", isEnforceSameLength());
+		return super.read();
 	}
 
 	@Override

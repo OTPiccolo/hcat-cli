@@ -84,6 +84,40 @@ public class HaplotypeTransformerTest {
 	}
 
 	@Test
+	public void compTooShort() throws Exception {
+		final Sequence tooShortSequence = new Sequence("ABC", "TooShort");
+		final List<Sequence> compare = Arrays.asList(MASTER_SEQUENCE, tooShortSequence, DIFF_SEQUENCE);
+		final List<Haplotype> haplotypes = Haplotype.createHaplotypes(compare);
+		final Map<Haplotype, Difference> map = new HaplotypeTransformer(haplotypes).compareToMaster(MASTER_SEQUENCE);
+		Assert.assertNotNull(map);
+		Assert.assertEquals(2, map.size());
+		final Difference sameDiff = map.get(haplotypes.get(0));
+		Assert.assertNotNull(sameDiff);
+		Assert.assertEquals(new Difference(MASTER_SEQUENCE, MASTER_SEQUENCE), sameDiff);
+		Assert.assertNull(map.get(haplotypes.get(1)));
+		final Difference diffDiff = map.get(haplotypes.get(2));
+		Assert.assertNotNull(diffDiff);
+		Assert.assertEquals(new Difference(MASTER_SEQUENCE, DIFF_SEQUENCE), diffDiff);
+	}
+
+	@Test
+	public void compTooLong() throws Exception {
+		final Sequence tooLongSequence = new Sequence("ABCDE", "TooLong");
+		final List<Sequence> compare = Arrays.asList(MASTER_SEQUENCE, tooLongSequence, DIFF_SEQUENCE);
+		final List<Haplotype> haplotypes = Haplotype.createHaplotypes(compare);
+		final Map<Haplotype, Difference> map = new HaplotypeTransformer(haplotypes).compareToMaster(MASTER_SEQUENCE);
+		Assert.assertNotNull(map);
+		Assert.assertEquals(2, map.size());
+		final Difference sameDiff = map.get(haplotypes.get(0));
+		Assert.assertNotNull(sameDiff);
+		Assert.assertEquals(new Difference(MASTER_SEQUENCE, MASTER_SEQUENCE), sameDiff);
+		Assert.assertNull(map.get(haplotypes.get(1)));
+		final Difference diffDiff = map.get(haplotypes.get(2));
+		Assert.assertNotNull(diffDiff);
+		Assert.assertEquals(new Difference(MASTER_SEQUENCE, DIFF_SEQUENCE), diffDiff);
+	}
+
+	@Test
 	public void idNull() throws Exception {
 		final Map<Haplotype, Difference> map = new HaplotypeTransformer(Collections.singletonList(new Haplotype(MASTER_SEQUENCE))).compareToMaster((String) null);
 		Assert.assertNull(map);

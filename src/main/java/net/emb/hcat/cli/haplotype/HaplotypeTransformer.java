@@ -6,6 +6,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.emb.hcat.cli.sequence.Difference;
 import net.emb.hcat.cli.sequence.Sequence;
 
@@ -15,6 +18,8 @@ import net.emb.hcat.cli.sequence.Sequence;
  * @author Heiko Mattes
  */
 public class HaplotypeTransformer {
+
+	private static final Logger log = LoggerFactory.getLogger(HaplotypeTransformer.class);
 
 	private final List<Haplotype> compare = new ArrayList<>();
 
@@ -59,6 +64,8 @@ public class HaplotypeTransformer {
 				}
 			}
 		}
+
+		log.warn("No sequence found with master ID: {}", masterId);
 		return null;
 	}
 
@@ -83,7 +90,7 @@ public class HaplotypeTransformer {
 			}
 			final Sequence sequence = haplotype.iterator().next();
 			if (master.getLength() != sequence.getLength()) {
-				System.out.println("WARN: Sequence '" + sequence.getName() + "' has different length to master sequence. Expected length: " + master.getLength() + ". Actual length: " + sequence.getLength());
+				log.warn("Sequence '{}' has different length to master sequence. Expected length: {} / Actual length: {}", sequence.getName(), master.getLength(), sequence.getLength());
 				continue;
 			}
 			final Difference difference = new Difference(master, sequence);

@@ -38,6 +38,7 @@ public class Haplotype extends LinkedHashSet<Sequence> {
 					break;
 				}
 			}
+
 			if (!foundHaplotype) {
 				final Haplotype haplotype = new Haplotype(sequence);
 				haplotypes.add(haplotype);
