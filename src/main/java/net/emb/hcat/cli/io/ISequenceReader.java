@@ -1,9 +1,9 @@
 package net.emb.hcat.cli.io;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.util.List;
 
+import net.emb.hcat.cli.ErrorCodeException;
 import net.emb.hcat.cli.sequence.Sequence;
 
 /**
@@ -17,9 +17,9 @@ public interface ISequenceReader extends Closeable {
 	 * Reads in sequences.
 	 *
 	 * @return A list of sequences.
-	 * @throws IOException
-	 *             An I/O exception.
+	 * @throws ErrorCodeException
+	 *             An exception happened reading in the sequences.
 	 */
-	List<Sequence> read() throws IOException;
+	List<Sequence> read() throws ErrorCodeException;
 
 }

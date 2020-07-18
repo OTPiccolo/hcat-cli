@@ -8,7 +8,10 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.MessageFormatter;
 
+import net.emb.hcat.cli.ErrorCodeException;
+import net.emb.hcat.cli.ErrorCodeException.EErrorCode;
 import net.emb.hcat.cli.sequence.Sequence;
 
 /**
@@ -24,6 +27,7 @@ public class BaseSequenceReader implements ISequenceReader {
 	private static final Logger log = LoggerFactory.getLogger(BaseSequenceReader.class);
 
 	private final BufferedReader reader;
+	private int lineCount = 0;
 
 	private boolean enforceSameLength;
 
@@ -41,12 +45,20 @@ public class BaseSequenceReader implements ISequenceReader {
 	}
 
 	@Override
-	public List<Sequence> read() throws IOException {
+	public List<Sequence> read() throws ErrorCodeException {
 		log.info("Reading sequences.");
-		readHeader();
-		final List<Sequence> sequences = readSequences();
-		log.info("Read {} sequence(s) successfully.", sequences.size());
-		return sequences;
+		try {
+			readHeader();
+			final List<Sequence> sequences = readSequences();
+			log.info("Read {} sequence(s) successfully.", sequences.size());
+			return sequences;
+		} catch (final ErrorCodeException e) {
+			throw e;
+		} catch (final IOException e) {
+			throw new ErrorCodeException(EErrorCode.GENERIC_READ, e, "Error reading sequences. Error message: {}", e.getMessage());
+		} catch (final Exception e) {
+			throw new ErrorCodeException(EErrorCode.UNEXPECTED, e, "Could not read sequences. Error message: {}", e.getMessage());
+		}
 	}
 
 	/**
@@ -56,21 +68,32 @@ public class BaseSequenceReader implements ISequenceReader {
 	 *
 	 * @return A list containing all sequences. Will never return
 	 *         <code>null</code>, but may be empty.
+	 * @throws ErrorCodeException
+	 *             An exception happened reading in the sequences.
 	 * @throws IOException
 	 *             If an I/O error occurs.
 	 */
-	protected List<Sequence> readSequences() throws IOException {
-		int previousSize = 0;
+	protected List<Sequence> readSequences() throws ErrorCodeException, IOException {
+		int previousLength = 0;
 		final ArrayList<Sequence> sequences = new ArrayList<>();
 		Sequence sequence;
 
 		while ((sequence = readSequence()) != null) {
 			log.debug("Sequence read: {}", sequence);
-			if (isEnforceSameLength() && previousSize > 0 && previousSize != sequence.getLength()) {
-				throw new IOException("Sequence doesn't match in length with previous sequence. Name of sequence: " + sequence.getName());
+			validateSequence(sequence);
+
+			if (isEnforceSameLength() && previousLength > 0 && previousLength != sequence.getLength()) {
+				final int lineIndex = getLineCount() - 1;
+				final String msg = MessageFormatter.basicArrayFormat("Sequence doesn't match in length with previous sequence. Name of sequence: \"{}\"; Index: {}; Expected length: {}, Actual length: {}", new Object[] { sequence.getName(), lineIndex, previousLength, sequence.getLength() });
+				throw new ErrorCodeException(EErrorCode.SEQUENCE_WRONG_LENGTH, msg, sequence, lineIndex, previousLength);
 			}
+
 			sequences.add(sequence);
-			previousSize = sequence.getLength();
+			previousLength = sequence.getLength();
+
+			if (sequence.getName() == null) {
+				sequence.setName(String.valueOf(sequences.size()));
+			}
 		}
 		return sequences;
 	}
@@ -78,32 +101,32 @@ public class BaseSequenceReader implements ISequenceReader {
 	/**
 	 * Reads the header. Default implementation does nothing.
 	 *
+	 * @throws ErrorCodeException
+	 *             An exception happened reading in the sequences.
 	 * @throws IOException
 	 *             If an I/O error occurs.
 	 */
-	protected void readHeader() throws IOException {
-		// Do nothing in default implementation.
+	protected void readHeader() throws ErrorCodeException, IOException {
+		// Default implementation does nothing.
 	}
 
 	/**
-	 * Reads a single sequence from the underlying reader.
+	 * Reads a single sequence from the underlying reader. Default
+	 * implementation does read one line of data, which is considered the
+	 * sequence.
 	 *
 	 * @return A sequence, or <code>null</code>, if no more sequences can be
 	 *         read. Usually if the end of the underlying reader has been
 	 *         reached.
+	 * @throws ErrorCodeException
+	 *             An exception happened reading in the sequences.
 	 * @throws IOException
 	 *             If an I/O error occurs.
 	 */
-	protected Sequence readSequence() throws IOException {
-		final String name = readLine();
+	protected Sequence readSequence() throws ErrorCodeException, IOException {
 		final String value = readLine();
-
-		if (name != null && value == null) {
-			throw new IOException("Unexpected end reached. Sequence missing.");
-		}
-
 		if (value != null) {
-			return new Sequence(value, name);
+			return new Sequence(value);
 		}
 		return null;
 	}
@@ -120,11 +143,30 @@ public class BaseSequenceReader implements ISequenceReader {
 	 */
 	protected String readLine() throws IOException {
 		final String line = getReader().readLine();
-		log.trace("Read line: {}", line);
-		if (line == null || isData(line)) {
+		log.trace("Read line ({}): {}", lineCount, line);
+		if (line == null) {
+			// End of stream reached.
+			return null;
+		}
+
+		lineCount++;
+		if (isData(line)) {
 			return line;
 		}
 		return readLine();
+	}
+
+	/**
+	 * Validates the given sequence, that all constraints of the underlying
+	 * format are correct. Default implementation does nothing.
+	 *
+	 * @param sequence
+	 *            The sequence to validate.
+	 * @throws ErrorCodeException
+	 *             If the validation failed.
+	 */
+	protected void validateSequence(final Sequence sequence) throws ErrorCodeException {
+		// Default implementation does nothing.
 	}
 
 	/**
@@ -142,12 +184,23 @@ public class BaseSequenceReader implements ISequenceReader {
 	}
 
 	/**
-	 * Gets the reader to read sequences from.
+	 * Gets the reader to read sequences from. Usually, the actual reader
+	 * shouldn't be used directly. Instead, use the {@link #readLine()} method.
 	 *
 	 * @return The reader.
 	 */
 	protected BufferedReader getReader() {
 		return reader;
+	}
+
+	/**
+	 * Gets the currently read lines from the underlying reader.
+	 *
+	 * @return The currently read lines from the underlying reader. Is only
+	 *         accurate if {@link #readLine()} is used.
+	 */
+	protected int getLineCount() {
+		return lineCount;
 	}
 
 	/**
@@ -160,7 +213,7 @@ public class BaseSequenceReader implements ISequenceReader {
 		try {
 			reader.close();
 		} catch (final IOException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 

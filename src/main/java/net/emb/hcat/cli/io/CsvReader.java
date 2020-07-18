@@ -7,6 +7,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.emb.hcat.cli.ErrorCodeException;
 import net.emb.hcat.cli.sequence.Sequence;
 
 /**
@@ -48,13 +49,13 @@ public class CsvReader extends BaseSequenceReader {
 	}
 
 	@Override
-	public List<Sequence> read() throws IOException {
+	public List<Sequence> read() throws ErrorCodeException {
 		log.debug("Reading sequences with following parameters. Same length: {} / Name included: {} / Delimiter: '{}'", isEnforceSameLength(), isNameIncluded(), getDelimiter());
 		return super.read();
 	}
 
 	@Override
-	protected void readHeader() throws IOException {
+	protected void readHeader() throws ErrorCodeException, IOException {
 		// Some CSV files (Excel specific) can have a delimiter specificiation
 		// in their first line in the form of: sep=,
 		boolean delimiterFound = false;
@@ -77,7 +78,7 @@ public class CsvReader extends BaseSequenceReader {
 	}
 
 	@Override
-	protected Sequence readSequence() throws IOException {
+	protected Sequence readSequence() throws ErrorCodeException, IOException {
 		final String line = readLine();
 		if (line != null) {
 			return readSequence(line);

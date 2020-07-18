@@ -1,31 +1,32 @@
 package ut.net.emb.hcat.cli.io;
 
-import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
 
+import org.hamcrest.Matchers;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
+import net.emb.hcat.cli.ErrorCodeException;
+import net.emb.hcat.cli.ErrorCodeException.EErrorCode;
 import net.emb.hcat.cli.io.BaseSequenceReader;
 import net.emb.hcat.cli.sequence.Sequence;
 
 @SuppressWarnings("javadoc")
 public class BaseSequenceReaderTest {
 
-	private static final String STANDARD_ID = "Standard";
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
+
 	private static final String STANDARD_VALUE = "ABCD";
-	private static final String STANDARD_2_ID = "Standard2";
 	private static final String STANDARD_2_VALUE = "DCBA";
-	private static final String SHORT_ID = "Short";
 	private static final String SHORT_VALUE = "ABC";
-	private static final String LONG_ID = "Long";
 	private static final String LONG_VALUE = "ABCDE";
 
 	private static final String getStandard() {
 		final StringBuilder builder = new StringBuilder();
-		builder.append(STANDARD_ID);
-		builder.append('\n');
 		builder.append(STANDARD_VALUE);
 		builder.append('\n');
 		return builder.toString();
@@ -33,8 +34,6 @@ public class BaseSequenceReaderTest {
 
 	private static final String getStandard2() {
 		final StringBuilder builder = new StringBuilder();
-		builder.append(STANDARD_2_ID);
-		builder.append('\n');
 		builder.append(STANDARD_2_VALUE);
 		builder.append('\n');
 		return builder.toString();
@@ -42,8 +41,6 @@ public class BaseSequenceReaderTest {
 
 	private static final String getShort() {
 		final StringBuilder builder = new StringBuilder();
-		builder.append(SHORT_ID);
-		builder.append('\n');
 		builder.append(SHORT_VALUE);
 		builder.append('\n');
 		return builder.toString();
@@ -51,8 +48,6 @@ public class BaseSequenceReaderTest {
 
 	private static final String getLong() {
 		final StringBuilder builder = new StringBuilder();
-		builder.append(LONG_ID);
-		builder.append('\n');
 		builder.append(LONG_VALUE);
 		builder.append('\n');
 		return builder.toString();
@@ -74,7 +69,7 @@ public class BaseSequenceReaderTest {
 		baseReader.close();
 		Assert.assertNotNull(sequences);
 		Assert.assertEquals(1, sequences.size());
-		Assert.assertEquals(STANDARD_ID, sequences.get(0).getName());
+		Assert.assertEquals("1", sequences.get(0).getName());
 		Assert.assertEquals(STANDARD_VALUE, sequences.get(0).getValue());
 		Assert.assertEquals(STANDARD_VALUE.length(), sequences.get(0).getLength());
 	}
@@ -87,19 +82,19 @@ public class BaseSequenceReaderTest {
 		Assert.assertNotNull(sequences);
 		Assert.assertEquals(4, sequences.size());
 		final Sequence standardSeq = sequences.get(0);
-		Assert.assertEquals(STANDARD_ID, standardSeq.getName());
+		Assert.assertEquals("1", standardSeq.getName());
 		Assert.assertEquals(STANDARD_VALUE, standardSeq.getValue());
 		Assert.assertEquals(STANDARD_VALUE.length(), standardSeq.getLength());
 		final Sequence standard2Seq = sequences.get(1);
-		Assert.assertEquals(STANDARD_2_ID, standard2Seq.getName());
+		Assert.assertEquals("2", standard2Seq.getName());
 		Assert.assertEquals(STANDARD_2_VALUE, standard2Seq.getValue());
 		Assert.assertEquals(STANDARD_2_VALUE.length(), standard2Seq.getLength());
 		final Sequence shortSeq = sequences.get(2);
-		Assert.assertEquals(SHORT_ID, shortSeq.getName());
+		Assert.assertEquals("3", shortSeq.getName());
 		Assert.assertEquals(SHORT_VALUE, shortSeq.getValue());
 		Assert.assertEquals(SHORT_VALUE.length(), shortSeq.getLength());
 		final Sequence longSeq = sequences.get(3);
-		Assert.assertEquals(LONG_ID, longSeq.getName());
+		Assert.assertEquals("4", longSeq.getName());
 		Assert.assertEquals(LONG_VALUE, longSeq.getValue());
 		Assert.assertEquals(LONG_VALUE.length(), longSeq.getLength());
 	}
@@ -113,16 +108,24 @@ public class BaseSequenceReaderTest {
 		Assert.assertEquals(2, sequences.size());
 	}
 
-	@Test(expected = IOException.class)
+	@Test
 	public void enforceSameLengthInvalidShort() throws Exception {
+		thrown.expect(ErrorCodeException.class);
+		thrown.expect(Matchers.hasProperty("errorCode", Matchers.is(EErrorCode.SEQUENCE_WRONG_LENGTH)));
+		thrown.expect(Matchers.hasProperty("values", Matchers.arrayContaining(new Sequence(SHORT_VALUE), 1, 4)));
+
 		final BaseSequenceReader baseReader = new BaseSequenceReader(new StringReader(getStandard() + getShort()));
 		baseReader.setEnforceSameLength(true);
 		baseReader.read();
 		baseReader.close();
 	}
 
-	@Test(expected = IOException.class)
+	@Test
 	public void enforceSameLengthInvalidLong() throws Exception {
+		thrown.expect(ErrorCodeException.class);
+		thrown.expect(Matchers.hasProperty("errorCode", Matchers.is(EErrorCode.SEQUENCE_WRONG_LENGTH)));
+		thrown.expect(Matchers.hasProperty("values", Matchers.arrayContaining(new Sequence(LONG_VALUE), 1, 4)));
+
 		final BaseSequenceReader baseReader = new BaseSequenceReader(new StringReader(getStandard() + getLong()));
 		baseReader.setEnforceSameLength(true);
 		baseReader.read();

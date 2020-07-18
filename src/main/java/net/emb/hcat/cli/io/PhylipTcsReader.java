@@ -8,7 +8,10 @@ import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.MessageFormatter;
 
+import net.emb.hcat.cli.ErrorCodeException;
+import net.emb.hcat.cli.ErrorCodeException.EErrorCode;
 import net.emb.hcat.cli.sequence.Sequence;
 
 /**
@@ -37,21 +40,21 @@ public class PhylipTcsReader extends BaseSequenceReader {
 	}
 
 	@Override
-	public List<Sequence> read() throws IOException {
+	public List<Sequence> read() throws ErrorCodeException {
 		log.debug("Reading sequences with following parameters. Same length: {}", isEnforceSameLength());
 		return super.read();
 	}
 
 	@Override
-	protected void readHeader() throws IOException {
+	protected void readHeader() throws ErrorCodeException, IOException {
 		final String header = readLine();
 		if (header == null) {
-			throw new IOException("No header found. Empty stream.");
+			throw new ErrorCodeException(EErrorCode.INVALID_HEADER, "No header found. Empty stream.", (Object) null);
 		}
 
 		final Matcher matcher = Pattern.compile(HEADER_REGEX).matcher(header);
 		if (!matcher.matches()) {
-			throw new IOException("Reading first line doesn't comply to Phylip format. Should be sequence length, followed by four spaces, and finished with sequence count. Found instead (without quotation marks): \"" + header + "\"");
+			throw new ErrorCodeException(EErrorCode.INVALID_HEADER, "Invalid header format for Phylip TCS format found. Header (without quotation marks): {}", header);
 		}
 
 		expectedSeqCount = Integer.parseInt(matcher.group(1));
@@ -60,26 +63,52 @@ public class PhylipTcsReader extends BaseSequenceReader {
 	}
 
 	@Override
-	protected Sequence readSequence() throws IOException {
-		final Sequence sequence = super.readSequence();
-		if (sequence != null) {
-			if (sequence.getName().length() > MAX_LENGTH_NAME) {
-				throw new IOException("Sequence with name \"" + sequence.getName() + "\" is too long. It can be at maximum " + MAX_LENGTH_NAME + " characters long.");
-			}
-			if (sequence.getLength() != getExpectedSeqLength()) {
-				throw new IOException("Sequence with name " + sequence.getName() + " has wrong length. Expected/Actual: " + getExpectedSeqLength() + "/" + sequence.getLength());
-			}
+	protected Sequence readSequence() throws ErrorCodeException, IOException {
+		final String name = readLine();
+		final String value = readLine();
+
+		if (name != null && value == null) {
+			throw new ErrorCodeException(EErrorCode.MISSING_VALUE, "Unexpected end reach. Sequence data is missing.");
 		}
+
+		final Sequence sequence = value == null ? null : new Sequence(value, name);
 		return sequence;
 	}
 
 	@Override
-	protected List<Sequence> readSequences() throws IOException {
+	protected List<Sequence> readSequences() throws ErrorCodeException, IOException {
 		final List<Sequence> sequences = super.readSequences();
 		if (sequences.size() != getExpectedSeqCount()) {
-			throw new IOException("Wrong number of sequences read. Expected/Actual: " + getExpectedSeqCount() + "/" + sequences.size());
+			throw new ErrorCodeException(EErrorCode.SEQUENCES_WRONG_AMOUNT, "Wrong number of sequences read. Expected/Actual: {}/{}", getExpectedSeqCount(), sequences.size());
 		}
 		return sequences;
+	}
+
+	@Override
+	protected void validateSequence(final Sequence sequence) throws ErrorCodeException {
+		super.validateSequence(sequence);
+
+		if (getMaxLengthOfName() != -1 && sequence.getName().length() > MAX_LENGTH_NAME) {
+			final int lineIndex = getLineCount() - 1;
+			final String msg = MessageFormatter.basicArrayFormat("Sequence name is too long. Name of sequence: \"{}\"; Index: {}; Maximum length: {}", new Object[] { sequence.getName(), lineIndex, MAX_LENGTH_NAME });
+			throw new ErrorCodeException(EErrorCode.SEQUENCE_WRONG_NAME, msg, sequence, lineIndex, MAX_LENGTH_NAME);
+		}
+
+		if (sequence.getLength() != getExpectedSeqLength()) {
+			final int lineIndex = getLineCount() - 1;
+			final String msg = MessageFormatter.basicArrayFormat("Sequence has unexpected length. Name of sequence: \"{}\"; Index: {}; Expected length: {}, Actual length: {}", new Object[] { sequence.getName(), lineIndex, getExpectedSeqLength(), sequence.getLength() });
+			throw new ErrorCodeException(EErrorCode.SEQUENCE_WRONG_LENGTH, msg, sequence, lineIndex, getExpectedSeqLength());
+		}
+	}
+
+	/**
+	 * Returns the maximum length that a name of a sequence is allowed to have.
+	 *
+	 * @return The maximum length that is allowed. -1 if no constraints are on
+	 *         the length of name.
+	 */
+	protected int getMaxLengthOfName() {
+		return MAX_LENGTH_NAME;
 	}
 
 	/**

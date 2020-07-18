@@ -7,6 +7,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.emb.hcat.cli.ErrorCodeException;
 import net.emb.hcat.cli.sequence.Sequence;
 
 /**
@@ -37,13 +38,13 @@ public class FastaReader extends BaseSequenceReader {
 	}
 
 	@Override
-	public List<Sequence> read() throws IOException {
+	public List<Sequence> read() throws ErrorCodeException {
 		log.debug("Reading sequences with following parameters. Same length: {}", isEnforceSameLength());
 		return super.read();
 	}
 
 	@Override
-	protected Sequence readSequence() throws IOException {
+	protected Sequence readSequence() throws ErrorCodeException, IOException {
 		Sequence seq = null;
 		String line;
 		while ((line = readLine()) != null) {

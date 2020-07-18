@@ -1,6 +1,5 @@
 package ut.net.emb.hcat.cli.codon;
 
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -10,6 +9,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import net.emb.hcat.cli.ErrorCodeException;
 import net.emb.hcat.cli.codon.CodonTransformationData;
 import net.emb.hcat.cli.codon.CodonTransformer;
 import net.emb.hcat.cli.io.CodonTableReader;
@@ -26,7 +26,7 @@ public class CodonTransformerTest {
 	private static List<Sequence> testSequences;
 
 	@BeforeClass
-	public static final void init() throws IOException {
+	public static final void init() throws ErrorCodeException {
 		testCode = new CodonTransformationData();
 		testCode.name = "Test";
 		testCode.number = 0;

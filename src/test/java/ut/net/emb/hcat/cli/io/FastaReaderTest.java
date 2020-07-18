@@ -1,20 +1,27 @@
 package ut.net.emb.hcat.cli.io;
 
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import org.hamcrest.Matchers;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
+import net.emb.hcat.cli.ErrorCodeException;
+import net.emb.hcat.cli.ErrorCodeException.EErrorCode;
 import net.emb.hcat.cli.io.FastaReader;
 import net.emb.hcat.cli.sequence.Sequence;
 
 @SuppressWarnings("javadoc")
 public class FastaReaderTest {
+
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
 
 	private static final char ID_CHAR = '>';
 	private static final char COMMENT_CHAR = ';';
@@ -134,8 +141,12 @@ public class FastaReaderTest {
 		Assert.assertEquals(2, sequences.size());
 	}
 
-	@Test(expected = IOException.class)
+	@Test
 	public void enforceSameLengthInvalid() throws Exception {
+		thrown.expect(ErrorCodeException.class);
+		thrown.expect(Matchers.hasProperty("errorCode", Matchers.is(EErrorCode.SEQUENCE_WRONG_LENGTH)));
+		thrown.expect(Matchers.hasProperty("values", Matchers.arrayContaining(new Sequence(LONG_VALUE, LONG_ID), 3, 4)));
+
 		final FastaReader fasta = new FastaReader(new StringReader(getStandard() + getLong()));
 		fasta.setEnforceSameLength(true);
 		fasta.read();

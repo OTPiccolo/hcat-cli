@@ -43,7 +43,7 @@ public class CsvReaderTest {
 		Assert.assertEquals(1, sequences.size());
 		final Sequence seq = sequences.get(0);
 		Assert.assertEquals("ACGT", seq.getValue());
-		Assert.assertNull(seq.getName());
+		Assert.assertEquals("1", seq.getName());
 	}
 
 	@Test
@@ -57,7 +57,7 @@ public class CsvReaderTest {
 		Assert.assertEquals(1, sequences.size());
 		final Sequence seq = sequences.get(0);
 		Assert.assertEquals("ACGT", seq.getValue());
-		Assert.assertNull(seq.getName());
+		Assert.assertEquals("1", seq.getName());
 	}
 
 	@Test
@@ -71,7 +71,7 @@ public class CsvReaderTest {
 		Assert.assertEquals(1, sequences.size());
 		final Sequence seq = sequences.get(0);
 		Assert.assertEquals("ACGT", seq.getValue());
-		Assert.assertNull(seq.getName());
+		Assert.assertEquals("1", seq.getName());
 	}
 
 	@Test
@@ -85,7 +85,7 @@ public class CsvReaderTest {
 		Assert.assertEquals(1, sequences.size());
 		final Sequence seq = sequences.get(0);
 		Assert.assertEquals("ACGT", seq.getValue());
-		Assert.assertNull(seq.getName());
+		Assert.assertEquals("1", seq.getName());
 	}
 
 	@Test
@@ -112,10 +112,10 @@ public class CsvReaderTest {
 		Assert.assertEquals(2, sequences.size());
 		final Sequence seq1 = sequences.get(0);
 		Assert.assertEquals("ACGT", seq1.getValue());
-		Assert.assertNull(seq1.getName());
+		Assert.assertEquals("1", seq1.getName());
 		final Sequence seq2 = sequences.get(1);
 		Assert.assertEquals("TGCA", seq2.getValue());
-		Assert.assertNull(seq2.getName());
+		Assert.assertEquals("2", seq2.getName());
 	}
 
 }

@@ -127,7 +127,7 @@ public class Main {
 			e.printStackTrace();
 			System.exit(1);
 			return;
-		} catch (final IOException e) {
+		} catch (final ErrorCodeException e) {
 			System.err.println("Error reading input file. Underlying error message: " + e.getMessage());
 			e.printStackTrace();
 			System.exit(1);

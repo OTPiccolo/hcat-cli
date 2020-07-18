@@ -3,6 +3,8 @@ package net.emb.hcat.cli.io;
 import java.io.IOException;
 import java.io.Reader;
 
+import net.emb.hcat.cli.ErrorCodeException;
+import net.emb.hcat.cli.ErrorCodeException.EErrorCode;
 import net.emb.hcat.cli.sequence.Sequence;
 
 /**
@@ -23,7 +25,7 @@ public class PhylipReader extends PhylipTcsReader {
 	}
 
 	@Override
-	protected Sequence readSequence() throws IOException {
+	protected Sequence readSequence() throws ErrorCodeException, IOException {
 		String line = readLine();
 		if (line == null) {
 			return null;
@@ -38,11 +40,17 @@ public class PhylipReader extends PhylipTcsReader {
 			}
 		}
 
-		if (builder.length() != getExpectedSeqLength()) {
-			throw new IOException("Sequence with name " + id + " has wrong length. Expected/Actual: " + getExpectedSeqLength() + "/" + builder.length());
+		if (builder.length() == 0) {
+			throw new ErrorCodeException(EErrorCode.MISSING_VALUE, "Unexpected end reach. Sequence data is missing.");
 		}
 
-		return new Sequence(builder.toString(), id);
+		final Sequence sequence = new Sequence(builder.toString(), id);
+		return sequence;
+	}
+
+	@Override
+	protected int getMaxLengthOfName() {
+		return -1;
 	}
 
 }
