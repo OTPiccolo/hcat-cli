@@ -84,7 +84,7 @@ public class BaseSequenceReader implements ISequenceReader {
 
 			if (isEnforceSameLength() && previousLength > 0 && previousLength != sequence.getLength()) {
 				final int lineIndex = getLineCount() - 1;
-				final String msg = MessageFormatter.basicArrayFormat("Sequence doesn't match in length with previous sequence. Name of sequence: \"{}\"; Index: {}; Expected length: {}, Actual length: {}", new Object[] { sequence.getName(), lineIndex, previousLength, sequence.getLength() });
+				final String msg = MessageFormatter.arrayFormat("Sequence doesn't match in length with previous sequence. Name of sequence: \"{}\"; Index: {}; Expected length: {}, Actual length: {}", new Object[] { sequence.getName(), lineIndex, previousLength, sequence.getLength() }).getMessage();
 				throw new ErrorCodeException(EErrorCode.SEQUENCE_WRONG_LENGTH, msg, sequence, lineIndex, previousLength);
 			}
 

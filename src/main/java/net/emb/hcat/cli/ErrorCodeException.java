@@ -91,7 +91,7 @@ public class ErrorCodeException extends Exception {
 	 * @see MessageFormatter
 	 */
 	public ErrorCodeException(final EErrorCode errorCode, final Exception exception, final String message, final Object... values) {
-		super(values == null || values.length == 0 ? message : MessageFormatter.basicArrayFormat(message, values), exception);
+		super(values == null || values.length == 0 ? message : MessageFormatter.arrayFormat(message, values).getMessage(), exception);
 		this.errorCode = errorCode;
 		this.values = values == null ? new Object[0] : values;
 	}

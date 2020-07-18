@@ -90,13 +90,13 @@ public class PhylipTcsReader extends BaseSequenceReader {
 
 		if (getMaxLengthOfName() != -1 && sequence.getName().length() > MAX_LENGTH_NAME) {
 			final int lineIndex = getLineCount() - 1;
-			final String msg = MessageFormatter.basicArrayFormat("Sequence name is too long. Name of sequence: \"{}\"; Index: {}; Maximum length: {}", new Object[] { sequence.getName(), lineIndex, MAX_LENGTH_NAME });
+			final String msg = MessageFormatter.arrayFormat("Sequence name is too long. Name of sequence: \"{}\"; Index: {}; Maximum length: {}", new Object[] { sequence.getName(), lineIndex, MAX_LENGTH_NAME }).getMessage();
 			throw new ErrorCodeException(EErrorCode.SEQUENCE_WRONG_NAME, msg, sequence, lineIndex, MAX_LENGTH_NAME);
 		}
 
 		if (sequence.getLength() != getExpectedSeqLength()) {
 			final int lineIndex = getLineCount() - 1;
-			final String msg = MessageFormatter.basicArrayFormat("Sequence has unexpected length. Name of sequence: \"{}\"; Index: {}; Expected length: {}, Actual length: {}", new Object[] { sequence.getName(), lineIndex, getExpectedSeqLength(), sequence.getLength() });
+			final String msg = MessageFormatter.arrayFormat("Sequence has unexpected length. Name of sequence: \"{}\"; Index: {}; Expected length: {}, Actual length: {}", new Object[] { sequence.getName(), lineIndex, getExpectedSeqLength(), sequence.getLength() }).getMessage();
 			throw new ErrorCodeException(EErrorCode.SEQUENCE_WRONG_LENGTH, msg, sequence, lineIndex, getExpectedSeqLength());
 		}
 	}
