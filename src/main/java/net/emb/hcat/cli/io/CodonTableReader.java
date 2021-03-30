@@ -44,6 +44,8 @@ public class CodonTableReader {
 	private static Pattern STARTS_PATTERN = createPattern("Starts", "M\\-\\*");
 	private static Pattern BASE_PATTERN = createPattern("Base1|Base2|Base3", "ACGT");
 
+	private static List<CodonTransformationData> defaultTable;
+
 	private static final Pattern createPattern(final String name, final String value) {
 		return Pattern.compile("\\s*(" + name + ")\\s*=\\s*([" + value + "]{64})\\s*");
 	}
@@ -54,15 +56,18 @@ public class CodonTableReader {
 	 * @return A list containing all found {@link CodonTransformationData}.
 	 */
 	public static final List<CodonTransformationData> readDefaultTable() {
-		log.info("Reading default codon table.");
-		try (Reader reader = new InputStreamReader(CodonTableReader.class.getResourceAsStream("/codonTable.txt"), StandardCharsets.UTF_8)) {
-			final CodonTableReader codonReader = new CodonTableReader(reader);
-			return codonReader.read();
-		} catch (final IOException e) {
-			// Should never happen.
-			e.printStackTrace();
-			return Collections.emptyList();
+		if (defaultTable == null) {
+			log.info("Reading default codon table.");
+			try (Reader reader = new InputStreamReader(CodonTableReader.class.getResourceAsStream("/codonTable.txt"), StandardCharsets.UTF_8)) {
+				final CodonTableReader codonReader = new CodonTableReader(reader);
+				defaultTable = Collections.unmodifiableList(codonReader.read());
+			} catch (final IOException e) {
+				// Should never happen.
+				log.error(e.getMessage(), e);
+				return Collections.emptyList();
+			}
 		}
+		return defaultTable;
 	}
 
 	private final BufferedReader reader;
