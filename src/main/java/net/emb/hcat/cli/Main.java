@@ -140,7 +140,7 @@ public class Main {
 		}
 
 		// Create haplotypes.
-		final List<Haplotype> haplotypes = Haplotype.createHaplotypes(sequences);
+		final List<Haplotype> haplotypes = Haplotype.wrap(sequences);
 
 		// Get master sequence to compare to.
 		Sequence master = null;

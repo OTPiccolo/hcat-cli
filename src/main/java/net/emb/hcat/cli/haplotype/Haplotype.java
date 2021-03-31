@@ -21,10 +21,10 @@ public class Haplotype extends LinkedHashSet<Sequence> {
 	 * Turns a collection of sequences into their corresponding haplotypes.
 	 *
 	 * @param sequences
-	 *            The sequences to compactify.
+	 *            The sequences to wrap into haplotypes.
 	 * @return A list, containing all found haplotypes.
 	 */
-	public static final List<Haplotype> createHaplotypes(final Collection<Sequence> sequences) {
+	public static final List<Haplotype> wrap(final Collection<Sequence> sequences) {
 		if (sequences == null) {
 			return null;
 		}
@@ -48,6 +48,24 @@ public class Haplotype extends LinkedHashSet<Sequence> {
 		return haplotypes;
 	}
 
+	/**
+	 * Turns a collection of haplotypes into their corresponding sequences.
+	 *
+	 * @param haplotypes
+	 *            The haplotypes to unwrap into sequences.
+	 * @return A list, containing all sequences within the haplotypes.
+	 */
+	public static final List<Sequence> unwrap(final Collection<Haplotype> haplotypes) {
+		if (haplotypes == null) {
+			return null;
+		}
+		final List<Sequence> sequences = new ArrayList<Sequence>();
+		for (final Haplotype haplotype : haplotypes) {
+			sequences.addAll(haplotype);
+		}
+		return sequences;
+	}
+
 	private String name;
 
 	/**
@@ -55,6 +73,17 @@ public class Haplotype extends LinkedHashSet<Sequence> {
 	 */
 	public Haplotype() {
 		super();
+	}
+
+	/**
+	 * Constructor. Initializes this empty haplotype with the given name.
+	 * 
+	 * @param name
+	 *            The name for this haplotype.
+	 */
+	public Haplotype(final String name) {
+		super();
+		setName(name);
 	}
 
 	/**
@@ -105,11 +134,22 @@ public class Haplotype extends LinkedHashSet<Sequence> {
 	/**
 	 * Returns the first sequence in this haplotype.
 	 *
-	 * @return the first sequence in this haplotype, or <code>null</code>, if
+	 * @return The first sequence in this haplotype, or <code>null</code>, if
 	 *         this haplotype is still empty.
 	 */
 	public Sequence getFirstSequence() {
 		return isEmpty() ? null : iterator().next();
+	}
+
+	/**
+	 * Returns this haplotype as if it was a sequence. The name of the haplotype
+	 * will be used for the name of the sequence.
+	 *
+	 * @return This haplotype as a sequence, or <code>null</code>, if this
+	 *         haplotype is still empty.
+	 */
+	public Sequence asSequence() {
+		return isEmpty() ? null : new Sequence(iterator().next().getValue(), getName());
 	}
 
 	/**

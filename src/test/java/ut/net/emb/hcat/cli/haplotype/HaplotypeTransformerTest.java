@@ -38,7 +38,7 @@ public class HaplotypeTransformerTest {
 
 	@Test
 	public void compItself() throws Exception {
-		final List<Haplotype> compare = Haplotype.createHaplotypes(Arrays.asList(MASTER_SEQUENCE));
+		final List<Haplotype> compare = Haplotype.wrap(Arrays.asList(MASTER_SEQUENCE));
 		final Map<Haplotype, Difference> map = new HaplotypeTransformer(compare).compareToMaster(MASTER_SEQUENCE);
 		Assert.assertNotNull(map);
 		Assert.assertEquals(1, map.size());
@@ -52,7 +52,7 @@ public class HaplotypeTransformerTest {
 
 	@Test
 	public void compDiff() throws Exception {
-		final List<Haplotype> compare = Haplotype.createHaplotypes(Arrays.asList(DIFF_SEQUENCE));
+		final List<Haplotype> compare = Haplotype.wrap(Arrays.asList(DIFF_SEQUENCE));
 		final Map<Haplotype, Difference> map = new HaplotypeTransformer(compare).compareToMaster(MASTER_SEQUENCE);
 		Assert.assertNotNull(map);
 		Assert.assertEquals(1, map.size());
@@ -68,7 +68,7 @@ public class HaplotypeTransformerTest {
 	public void compMore() throws Exception {
 		final Sequence endSequence = new Sequence("ABCC", "EndDiff");
 		final List<Sequence> compare = Arrays.asList(MASTER_SEQUENCE, DIFF_SEQUENCE, copy(MASTER_SEQUENCE, "Master2"), copy(DIFF_SEQUENCE, "Different2"), endSequence);
-		final List<Haplotype> haplotypes = Haplotype.createHaplotypes(compare);
+		final List<Haplotype> haplotypes = Haplotype.wrap(compare);
 		final Map<Haplotype, Difference> map = new HaplotypeTransformer(haplotypes).compareToMaster(MASTER_SEQUENCE);
 		Assert.assertNotNull(map);
 		Assert.assertEquals(3, map.size());
@@ -87,7 +87,7 @@ public class HaplotypeTransformerTest {
 	public void compTooShort() throws Exception {
 		final Sequence tooShortSequence = new Sequence("ABC", "TooShort");
 		final List<Sequence> compare = Arrays.asList(MASTER_SEQUENCE, tooShortSequence, DIFF_SEQUENCE);
-		final List<Haplotype> haplotypes = Haplotype.createHaplotypes(compare);
+		final List<Haplotype> haplotypes = Haplotype.wrap(compare);
 		final Map<Haplotype, Difference> map = new HaplotypeTransformer(haplotypes).compareToMaster(MASTER_SEQUENCE);
 		Assert.assertNotNull(map);
 		Assert.assertEquals(2, map.size());
@@ -104,7 +104,7 @@ public class HaplotypeTransformerTest {
 	public void compTooLong() throws Exception {
 		final Sequence tooLongSequence = new Sequence("ABCDE", "TooLong");
 		final List<Sequence> compare = Arrays.asList(MASTER_SEQUENCE, tooLongSequence, DIFF_SEQUENCE);
-		final List<Haplotype> haplotypes = Haplotype.createHaplotypes(compare);
+		final List<Haplotype> haplotypes = Haplotype.wrap(compare);
 		final Map<Haplotype, Difference> map = new HaplotypeTransformer(haplotypes).compareToMaster(MASTER_SEQUENCE);
 		Assert.assertNotNull(map);
 		Assert.assertEquals(2, map.size());

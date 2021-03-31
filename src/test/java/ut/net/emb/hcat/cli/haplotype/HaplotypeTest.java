@@ -25,11 +25,11 @@ public class HaplotypeTest {
 	}
 
 	@Test
-	public void testCreate() {
+	public void testWrap() {
 		final Sequence masterCopy = copy(MASTER_SEQUENCE, "Master2");
 		final Sequence longCopy = copy(LONG_SEQUENCE, "Long2");
 		final List<Sequence> sequences = Arrays.asList(MASTER_SEQUENCE, MID_DIFF_SEQUENCE, SHORT_SEQUENCE, LONG_SEQUENCE, masterCopy, MID_DIFF_SEQUENCE, longCopy);
-		final List<Haplotype> haplotypes = Haplotype.createHaplotypes(sequences);
+		final List<Haplotype> haplotypes = Haplotype.wrap(sequences);
 		Assert.assertNotNull(haplotypes);
 		Assert.assertEquals(4, haplotypes.size());
 		Assert.assertEquals(2, haplotypes.get(0).size());
@@ -44,6 +44,23 @@ public class HaplotypeTest {
 		Assert.assertTrue(haplotypes.get(3).contains(longCopy));
 	}
 
+	@Test
+	public void testUnwrap() {
+		final Sequence masterCopy = copy(MASTER_SEQUENCE, "Master2");
+		final Sequence longCopy = copy(LONG_SEQUENCE, "Long2");
+		final List<Sequence> orgSequences = Arrays.asList(MASTER_SEQUENCE, MID_DIFF_SEQUENCE, SHORT_SEQUENCE, LONG_SEQUENCE, masterCopy, MID_DIFF_SEQUENCE, longCopy);
+		final List<Haplotype> haplotypes = Haplotype.wrap(orgSequences);
+		final List<Sequence> sequences = Haplotype.unwrap(haplotypes);
+		Assert.assertNotNull(sequences);
+		Assert.assertEquals(6, sequences.size());
+		Assert.assertEquals(MASTER_SEQUENCE, sequences.get(0));
+		Assert.assertEquals(masterCopy, sequences.get(1));
+		Assert.assertEquals(MID_DIFF_SEQUENCE, sequences.get(2));
+		Assert.assertEquals(SHORT_SEQUENCE, sequences.get(3));
+		Assert.assertEquals(LONG_SEQUENCE, sequences.get(4));
+		Assert.assertEquals(longCopy, sequences.get(5));
+	}
+
 	@Test(expected = IllegalArgumentException.class)
 	public void testNullAdd() {
 		final Haplotype haplotype = new Haplotype();
@@ -52,8 +69,8 @@ public class HaplotypeTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	@SuppressWarnings("unused")
-	public void testNullConstructor() {
-		new Haplotype(null);
+	public void testNullSequenceConstructor() {
+		new Haplotype((Sequence) null);
 	}
 
 	@Test
@@ -112,6 +129,38 @@ public class HaplotypeTest {
 	}
 
 	@Test
+	public void testFirstSequence() {
+		final Haplotype haplotype = new Haplotype(MASTER_SEQUENCE);
+		haplotype.add(copy(MASTER_SEQUENCE, "Master2"));
+		final Sequence sequence = haplotype.getFirstSequence();
+		Assert.assertSame(MASTER_SEQUENCE, sequence);
+	}
+
+	@Test
+	public void testFirstSequenceEmpty() {
+		final Haplotype haplotype = new Haplotype();
+		final Sequence sequence = haplotype.getFirstSequence();
+		Assert.assertNull(sequence);
+	}
+
+	@Test
+	public void testAsSequence() {
+		final Haplotype haplotype = new Haplotype("Haplotype");
+		haplotype.add(MASTER_SEQUENCE);
+		final Sequence sequence = haplotype.asSequence();
+		Assert.assertNotNull(sequence);
+		Assert.assertEquals("Haplotype", sequence.getName());
+		Assert.assertEquals(MASTER_SEQUENCE.getValue(), sequence.getValue());
+	}
+
+	@Test
+	public void testAsSequenceEmpty() {
+		final Haplotype haplotype = new Haplotype("Haplotype");
+		final Sequence sequence = haplotype.asSequence();
+		Assert.assertNull(sequence);
+	}
+
+	@Test
 	public void testData() throws Exception {
 		List<Sequence> sequences;
 		try (FastaReader fasta = new FastaReader(new InputStreamReader(getClass().getResourceAsStream("/fasta-testdata1.txt"), StandardCharsets.UTF_8))) {
@@ -119,7 +168,7 @@ public class HaplotypeTest {
 			sequences = fasta.read();
 		}
 
-		final List<Haplotype> haplotypes = Haplotype.createHaplotypes(sequences);
+		final List<Haplotype> haplotypes = Haplotype.wrap(sequences);
 		Assert.assertEquals(24, haplotypes.size());
 	}
 
