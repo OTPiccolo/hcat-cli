@@ -5,7 +5,7 @@ import java.io.StringWriter;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.emb.hcat.cli.io.CsvWriter;
+import net.emb.hcat.cli.io.sequence.CsvWriter;
 import net.emb.hcat.cli.sequence.Sequence;
 
 @SuppressWarnings("javadoc")

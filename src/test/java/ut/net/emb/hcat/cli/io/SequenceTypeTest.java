@@ -6,15 +6,15 @@ import java.io.StringWriter;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.emb.hcat.cli.io.ESequenceType;
-import net.emb.hcat.cli.io.FastaReader;
-import net.emb.hcat.cli.io.FastaWriter;
-import net.emb.hcat.cli.io.ISequenceReader;
-import net.emb.hcat.cli.io.ISequenceWriter;
-import net.emb.hcat.cli.io.PhylipReader;
-import net.emb.hcat.cli.io.PhylipTcsReader;
-import net.emb.hcat.cli.io.PhylipTcsWriter;
-import net.emb.hcat.cli.io.PhylipWriter;
+import net.emb.hcat.cli.io.sequence.ESequenceType;
+import net.emb.hcat.cli.io.sequence.FastaReader;
+import net.emb.hcat.cli.io.sequence.FastaWriter;
+import net.emb.hcat.cli.io.sequence.ISequenceReader;
+import net.emb.hcat.cli.io.sequence.ISequenceWriter;
+import net.emb.hcat.cli.io.sequence.PhylipReader;
+import net.emb.hcat.cli.io.sequence.PhylipTcsReader;
+import net.emb.hcat.cli.io.sequence.PhylipTcsWriter;
+import net.emb.hcat.cli.io.sequence.PhylipWriter;
 
 @SuppressWarnings("javadoc")
 public class SequenceTypeTest {

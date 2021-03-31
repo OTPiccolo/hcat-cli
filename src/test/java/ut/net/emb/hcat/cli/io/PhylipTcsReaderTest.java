@@ -14,7 +14,7 @@ import org.junit.rules.ExpectedException;
 
 import net.emb.hcat.cli.ErrorCodeException;
 import net.emb.hcat.cli.ErrorCodeException.EErrorCode;
-import net.emb.hcat.cli.io.PhylipTcsReader;
+import net.emb.hcat.cli.io.sequence.PhylipTcsReader;
 import net.emb.hcat.cli.sequence.Sequence;
 
 @SuppressWarnings("javadoc")

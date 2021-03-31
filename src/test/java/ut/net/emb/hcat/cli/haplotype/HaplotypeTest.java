@@ -9,7 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import net.emb.hcat.cli.haplotype.Haplotype;
-import net.emb.hcat.cli.io.FastaReader;
+import net.emb.hcat.cli.io.sequence.FastaReader;
 import net.emb.hcat.cli.sequence.Sequence;
 
 @SuppressWarnings("javadoc")

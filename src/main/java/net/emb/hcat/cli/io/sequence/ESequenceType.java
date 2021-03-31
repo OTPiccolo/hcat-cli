@@ -1,4 +1,4 @@
-package net.emb.hcat.cli.io;
+package net.emb.hcat.cli.io.sequence;
 
 import java.io.Reader;
 import java.io.Writer;
@@ -43,10 +43,10 @@ public enum ESequenceType {
 	}
 
 	/**
-	 * Gets a writer that can write sequnces in the format of this enum.
+	 * Gets a writer that can write sequences in the format of this enum.
 	 *
 	 * @param writer
-	 *            The underlying writer to write sequnces to.
+	 *            The underlying writer to write sequences to.
 	 * @return The writer.
 	 */
 	public ISequenceWriter createWriter(final Writer writer) {

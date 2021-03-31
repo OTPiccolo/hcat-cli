@@ -16,8 +16,8 @@ import com.jenkov.cliargs.CliArgs;
 
 import net.emb.hcat.cli.haplotype.Haplotype;
 import net.emb.hcat.cli.haplotype.HaplotypeTransformer;
-import net.emb.hcat.cli.io.FastaReader;
 import net.emb.hcat.cli.io.HaplotypeWriter;
+import net.emb.hcat.cli.io.sequence.FastaReader;
 import net.emb.hcat.cli.sequence.Difference;
 import net.emb.hcat.cli.sequence.Sequence;
 

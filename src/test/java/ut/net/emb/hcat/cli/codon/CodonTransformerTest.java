@@ -13,7 +13,7 @@ import net.emb.hcat.cli.ErrorCodeException;
 import net.emb.hcat.cli.codon.CodonTransformationData;
 import net.emb.hcat.cli.codon.CodonTransformer;
 import net.emb.hcat.cli.io.CodonTableReader;
-import net.emb.hcat.cli.io.FastaReader;
+import net.emb.hcat.cli.io.sequence.FastaReader;
 import net.emb.hcat.cli.sequence.Sequence;
 
 @SuppressWarnings("javadoc")

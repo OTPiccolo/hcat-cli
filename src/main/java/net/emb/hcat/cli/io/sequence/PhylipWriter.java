@@ -1,4 +1,4 @@
-package net.emb.hcat.cli.io;
+package net.emb.hcat.cli.io.sequence;
 
 import java.io.BufferedWriter;
 import java.io.IOException;

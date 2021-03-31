@@ -6,7 +6,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.emb.hcat.cli.io.CsvReader;
+import net.emb.hcat.cli.io.sequence.CsvReader;
 import net.emb.hcat.cli.sequence.Sequence;
 
 @SuppressWarnings("javadoc")
