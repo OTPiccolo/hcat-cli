@@ -1,4 +1,4 @@
-package ut.net.emb.hcat.cli.io;
+package ut.net.emb.hcat.cli.io.sequence;
 
 import java.io.StringWriter;
 

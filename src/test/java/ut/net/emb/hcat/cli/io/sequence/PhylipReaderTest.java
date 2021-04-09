@@ -1,4 +1,4 @@
-package ut.net.emb.hcat.cli.io;
+package ut.net.emb.hcat.cli.io.sequence;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -14,11 +14,11 @@ import org.junit.rules.ExpectedException;
 
 import net.emb.hcat.cli.ErrorCodeException;
 import net.emb.hcat.cli.ErrorCodeException.EErrorCode;
-import net.emb.hcat.cli.io.sequence.PhylipTcsReader;
+import net.emb.hcat.cli.io.sequence.PhylipReader;
 import net.emb.hcat.cli.sequence.Sequence;
 
 @SuppressWarnings("javadoc")
-public class PhylipTcsReaderTest {
+public class PhylipReaderTest {
 
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
@@ -29,7 +29,7 @@ public class PhylipTcsReaderTest {
 		thrown.expect(Matchers.hasProperty("errorCode", Matchers.is(EErrorCode.INVALID_HEADER)));
 		thrown.expect(Matchers.hasProperty("values", Matchers.arrayContaining((Object) null)));
 
-		final PhylipTcsReader reader = new PhylipTcsReader(new StringReader(""));
+		final PhylipReader reader = new PhylipReader(new StringReader(""));
 		reader.read();
 		reader.close();
 	}
@@ -40,7 +40,7 @@ public class PhylipTcsReaderTest {
 		thrown.expect(Matchers.hasProperty("errorCode", Matchers.is(EErrorCode.INVALID_HEADER)));
 		thrown.expect(Matchers.hasProperty("values", Matchers.arrayContaining("a1    1")));
 
-		final PhylipTcsReader reader = new PhylipTcsReader(new StringReader("a1    1"));
+		final PhylipReader reader = new PhylipReader(new StringReader("a1    1"));
 		reader.read();
 		reader.close();
 	}
@@ -51,7 +51,7 @@ public class PhylipTcsReaderTest {
 		thrown.expect(Matchers.hasProperty("errorCode", Matchers.is(EErrorCode.INVALID_HEADER)));
 		thrown.expect(Matchers.hasProperty("values", Matchers.arrayContaining("1    a1")));
 
-		final PhylipTcsReader reader = new PhylipTcsReader(new StringReader("1    a1"));
+		final PhylipReader reader = new PhylipReader(new StringReader("1    a1"));
 		reader.read();
 		reader.close();
 	}
@@ -62,7 +62,7 @@ public class PhylipTcsReaderTest {
 		thrown.expect(Matchers.hasProperty("errorCode", Matchers.is(EErrorCode.INVALID_HEADER)));
 		thrown.expect(Matchers.hasProperty("values", Matchers.arrayContaining("0     1")));
 
-		final PhylipTcsReader reader = new PhylipTcsReader(new StringReader("0     1"));
+		final PhylipReader reader = new PhylipReader(new StringReader("0     1"));
 		reader.read();
 		reader.close();
 	}
@@ -73,14 +73,14 @@ public class PhylipTcsReaderTest {
 		thrown.expect(Matchers.hasProperty("errorCode", Matchers.is(EErrorCode.INVALID_HEADER)));
 		thrown.expect(Matchers.hasProperty("values", Matchers.arrayContaining("0   1")));
 
-		final PhylipTcsReader reader = new PhylipTcsReader(new StringReader("0   1"));
+		final PhylipReader reader = new PhylipReader(new StringReader("0   1"));
 		reader.read();
 		reader.close();
 	}
 
 	@Test
 	public void zeroSeqHeader() throws Exception {
-		final PhylipTcsReader reader = new PhylipTcsReader(new StringReader("0    1"));
+		final PhylipReader reader = new PhylipReader(new StringReader("0    1"));
 		final List<Sequence> sequences = reader.read();
 		reader.close();
 		Assert.assertNotNull(sequences);
@@ -89,7 +89,7 @@ public class PhylipTcsReaderTest {
 
 	@Test
 	public void singleSeq() throws Exception {
-		final PhylipTcsReader reader = new PhylipTcsReader(new StringReader("1    4\nSingle\nABCD"));
+		final PhylipReader reader = new PhylipReader(new StringReader("1    4\nSingle\nABCD"));
 		final List<Sequence> sequences = reader.read();
 		reader.close();
 		Assert.assertNotNull(sequences);
@@ -99,7 +99,7 @@ public class PhylipTcsReaderTest {
 
 	@Test
 	public void multipleSeq() throws Exception {
-		final PhylipTcsReader reader = new PhylipTcsReader(new StringReader("2    4\nSeq1\nABCD\nSeq2\nBCDE"));
+		final PhylipReader reader = new PhylipReader(new StringReader("2    4\nSeq1\nABCD\nSeq2\nBCDE"));
 		final List<Sequence> sequences = reader.read();
 		reader.close();
 		Assert.assertNotNull(sequences);
@@ -109,12 +109,24 @@ public class PhylipTcsReaderTest {
 	}
 
 	@Test
+	public void multipleLines() throws Exception {
+		final PhylipReader reader = new PhylipReader(new StringReader("3    4\nSeq1\nA\nBCD\nSeq2\nBC\nDE\nSeq3\nCDE\nF"));
+		final List<Sequence> sequences = reader.read();
+		reader.close();
+		Assert.assertNotNull(sequences);
+		Assert.assertEquals(3, sequences.size());
+		Assert.assertEquals(new Sequence("ABCD", "Seq1"), sequences.get(0));
+		Assert.assertEquals(new Sequence("BCDE", "Seq2"), sequences.get(1));
+		Assert.assertEquals(new Sequence("CDEF", "Seq3"), sequences.get(2));
+	}
+
+	@Test
 	public void wrongSeqCount() throws Exception {
 		thrown.expect(ErrorCodeException.class);
 		thrown.expect(Matchers.hasProperty("errorCode", Matchers.is(EErrorCode.SEQUENCES_WRONG_AMOUNT)));
 		thrown.expect(Matchers.hasProperty("values", Matchers.arrayContaining(2, 1)));
 
-		final PhylipTcsReader reader = new PhylipTcsReader(new StringReader("2    4\nSingle\nABCD"));
+		final PhylipReader reader = new PhylipReader(new StringReader("2    4\nSingle\nABCD"));
 		reader.read();
 		reader.close();
 	}
@@ -125,7 +137,7 @@ public class PhylipTcsReaderTest {
 		thrown.expect(Matchers.hasProperty("errorCode", Matchers.is(EErrorCode.SEQUENCE_WRONG_LENGTH)));
 		thrown.expect(Matchers.hasProperty("values", Matchers.arrayContaining(new Sequence("ABCD", "Single"), 2, 3)));
 
-		final PhylipTcsReader reader = new PhylipTcsReader(new StringReader("1    3\nSingle\nABCD"));
+		final PhylipReader reader = new PhylipReader(new StringReader("1    3\nSingle\nABCD"));
 		reader.read();
 		reader.close();
 	}
@@ -136,29 +148,22 @@ public class PhylipTcsReaderTest {
 		thrown.expect(Matchers.hasProperty("errorCode", Matchers.is(EErrorCode.SEQUENCE_WRONG_LENGTH)));
 		thrown.expect(Matchers.hasProperty("values", Matchers.arrayContaining(new Sequence("ABCD", "Single"), 2, 5)));
 
-		final PhylipTcsReader reader = new PhylipTcsReader(new StringReader("1    5\nSingle\nABCD"));
+		final PhylipReader reader = new PhylipReader(new StringReader("1    5\nSingle\nABCD"));
 		reader.read();
 		reader.close();
 	}
 
+	// Phylip Reader does not have maximum name length restriction. (In contrast
+	// to Phylip TCS Readers)
 	@Test
-	public void maxLengthName() throws Exception {
-		final PhylipTcsReader reader = new PhylipTcsReader(new StringReader("1    4\nMax   Len\nABCD"));
+	public void ignoreMaxLengthName() throws Exception {
+		final PhylipReader reader = new PhylipReader(new StringReader("1    4\nUnlimited Maximum Length Name\nABCD"));
 		final List<Sequence> sequences = reader.read();
 		reader.close();
 		Assert.assertNotNull(sequences);
 		Assert.assertEquals(1, sequences.size());
-	}
-
-	@Test
-	public void overMaxLengthName() throws Exception {
-		thrown.expect(ErrorCodeException.class);
-		thrown.expect(Matchers.hasProperty("errorCode", Matchers.is(EErrorCode.SEQUENCE_WRONG_NAME)));
-		thrown.expect(Matchers.hasProperty("values", Matchers.arrayContaining(new Sequence("ABCD", "Over   Max"), 2, 9)));
-
-		final PhylipTcsReader reader = new PhylipTcsReader(new StringReader("1    4\nOver   Max\nABCD"));
-		reader.read();
-		reader.close();
+		final Sequence seq = sequences.get(0);
+		Assert.assertEquals(new Sequence("ABCD", "Unlimited Maximum Length Name"), seq);
 	}
 
 	@Test
@@ -167,7 +172,7 @@ public class PhylipTcsReaderTest {
 		thrown.expect(Matchers.hasProperty("errorCode", Matchers.is(EErrorCode.MISSING_VALUE)));
 		thrown.expect(Matchers.hasProperty("values", Matchers.emptyArray()));
 
-		final PhylipTcsReader reader = new PhylipTcsReader(new StringReader("2    4\nThere\nABCD\nNotThere"));
+		final PhylipReader reader = new PhylipReader(new StringReader("2    4\nThere\nABCD\nNotThere"));
 		reader.read();
 		reader.close();
 	}
@@ -176,7 +181,7 @@ public class PhylipTcsReaderTest {
 	public void readTestData() throws Exception {
 		List<Sequence> sequences;
 		try (Reader reader = new InputStreamReader(getClass().getResourceAsStream("/phylip-tcs-testdata.phy"), StandardCharsets.UTF_8)) {
-			final PhylipTcsReader phylipReader = new PhylipTcsReader(reader);
+			final PhylipReader phylipReader = new PhylipReader(reader);
 			sequences = phylipReader.read();
 			phylipReader.close();
 		}
