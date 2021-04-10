@@ -14,11 +14,11 @@ import net.emb.hcat.cli.sequence.Difference;
 import net.emb.hcat.cli.sequence.Sequence;
 
 /**
- * A writer to write out haplotypes as text.
+ * A writer to write out haplotype table as text.
  *
  * @author Heiko Mattes
  */
-public class HaplotypeWriter {
+public class HaplotypeTableWriter {
 
 	// Indents the given Appendable by the given amount of spaces.
 	private static void indent(final int times, final Appendable appendable) throws IOException {
@@ -35,7 +35,7 @@ public class HaplotypeWriter {
 	 * @param writer
 	 *            The writer data should be written to.
 	 */
-	public HaplotypeWriter(final Writer writer) {
+	public HaplotypeTableWriter(final Writer writer) {
 		if (writer == null) {
 			throw new IllegalArgumentException("Writer can't be null.");
 		}
@@ -56,25 +56,24 @@ public class HaplotypeWriter {
 	 *             An I/O exception.
 	 */
 	public void write(final Sequence master, final Map<Haplotype, Difference> result) throws IOException {
+		final Haplotype masterHaplotype = Haplotype.find(master, result.keySet());
+		if (masterHaplotype == null) {
+			throw new IOException("Sequence does not belong to any haplotype. Can not write out haplotype table. Sequence name: " + master.getName());
+		}
+
 		// Calculate all positions.
 		final Set<Integer> positions = new TreeSet<>();
 		for (final Difference difference : result.values()) {
 			positions.addAll(difference.getDifferencePosition());
 		}
 
-		writer.append("Master sequence: ");
-		writer.append(master.getName());
-		writer.newLine();
-		writer.flush();
-
 		final int positionLength = "Positions".length();
-		final int masterLength = "Master".length();
 
 		// Write for each difference the name of all sequences.
-		int maxLength = Math.max(positionLength, masterLength);
+		int maxLength = positionLength;
 		final Map<Haplotype, StringBuilder> names = new LinkedHashMap<>();
 		for (final Haplotype haplotype : result.keySet()) {
-			final StringBuilder builder = new StringBuilder();
+			final StringBuilder builder = new StringBuilder(maxLength);
 			names.put(haplotype, builder);
 			for (final Sequence sequence : haplotype) {
 				builder.append(sequence.getName());
@@ -86,14 +85,13 @@ public class HaplotypeWriter {
 
 		// Pretty print the names so all are the same length.
 		for (final StringBuilder builder : names.values()) {
+			builder.ensureCapacity(maxLength);
 			indent(maxLength - builder.length(), builder);
-			builder.append(':');
 		}
 
 		// Write all position numbers.
 		writer.append("Positions");
 		indent(maxLength - positionLength, writer);
-		writer.append(':');
 		for (final Integer pos : positions) {
 			writer.append('\t');
 			writer.append(String.valueOf(pos.intValue() + 1));
@@ -102,9 +100,9 @@ public class HaplotypeWriter {
 		writer.flush();
 
 		// Write master sequence.
-		writer.append("Master");
-		indent(maxLength - masterLength, writer);
-		writer.append(':');
+		final String masterName = names.get(masterHaplotype).toString();
+		writer.append(masterName);
+		indent(maxLength - masterName.length(), writer);
 		for (final Integer pos : positions) {
 			writer.append('\t');
 			writer.append(master.getValue().charAt(pos.intValue()));
@@ -114,7 +112,12 @@ public class HaplotypeWriter {
 
 		// Write out the differences.
 		for (final Entry<Haplotype, StringBuilder> entry : names.entrySet()) {
-			final String difference = result.get(entry.getKey()).getDifference();
+			final Haplotype haplotype = entry.getKey();
+			if (masterHaplotype == haplotype) {
+				// Already written master haplotype.
+				continue;
+			}
+			final String difference = result.get(haplotype).getDifference();
 			writer.append(entry.getValue().toString());
 			for (final Integer pos : positions) {
 				writer.append('\t');
@@ -127,7 +130,7 @@ public class HaplotypeWriter {
 
 	/**
 	 * Convenience method to close the underlying writer.
-	 *
+	 * 
 	 * @see Writer#close()
 	 */
 	public void close() {

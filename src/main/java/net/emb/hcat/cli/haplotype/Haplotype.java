@@ -66,23 +66,45 @@ public class Haplotype extends LinkedHashSet<Sequence> {
 		return sequences;
 	}
 
+	/**
+	 * Finds the haplotype, to which this sequence belongs. Does not consider
+	 * empty haplotypes.
+	 *
+	 * @param sequence
+	 *            The sequence to look up.
+	 * @param haplotypes
+	 *            The haplotypes to check.
+	 * @return The haplotype the sequence would belong to. Or <code>null</code>,
+	 *         if no such haplotype was found.
+	 */
+	public static final Haplotype find(final Sequence sequence, final Collection<Haplotype> haplotypes) {
+		if (sequence == null || haplotypes == null) {
+			return null;
+		}
+		for (final Haplotype haplotype : haplotypes) {
+			if (haplotype.belongsToHaplotype(sequence) && !haplotype.isEmpty()) {
+				return haplotype;
+			}
+		}
+		return null;
+	}
+
 	private String name;
 
 	/**
 	 * Constructor.
 	 */
 	public Haplotype() {
-		super();
+		// Do nothing.
 	}
 
 	/**
 	 * Constructor. Initializes this empty haplotype with the given name.
-	 * 
+	 *
 	 * @param name
 	 *            The name for this haplotype.
 	 */
 	public Haplotype(final String name) {
-		super();
 		setName(name);
 	}
 
@@ -94,7 +116,6 @@ public class Haplotype extends LinkedHashSet<Sequence> {
 	 *            The sequence to add. Must not be <code>null</code>.
 	 */
 	public Haplotype(final Sequence sequence) {
-		super();
 		add(sequence);
 	}
 

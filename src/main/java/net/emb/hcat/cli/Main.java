@@ -16,7 +16,7 @@ import com.jenkov.cliargs.CliArgs;
 
 import net.emb.hcat.cli.haplotype.Haplotype;
 import net.emb.hcat.cli.haplotype.HaplotypeTransformer;
-import net.emb.hcat.cli.io.HaplotypeWriter;
+import net.emb.hcat.cli.io.HaplotypeTableWriter;
 import net.emb.hcat.cli.io.sequence.FastaReader;
 import net.emb.hcat.cli.sequence.Difference;
 import net.emb.hcat.cli.sequence.Sequence;
@@ -190,18 +190,20 @@ public class Main {
 		}
 
 		// Write output.
-		final HaplotypeWriter haplotypeWriter = new HaplotypeWriter(writer);
+		final HaplotypeTableWriter haplotypeWriter = new HaplotypeTableWriter(writer);
 		try {
-			writer.append("There are ");
-			writer.append(String.valueOf(haplotypes.size()));
-			writer.append(" different haplotypes.");
-			writer.append('\n');
 			haplotypeWriter.write(master, haplotypeMap);
 		} catch (final IOException e) {
 			System.err.println("Error writing output file. Underlying error message: " + e.getMessage());
 			e.printStackTrace();
 			System.exit(1);
 			return;
+		} finally {
+			try {
+				writer.close();
+			} catch (final IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

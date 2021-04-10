@@ -61,6 +61,16 @@ public class HaplotypeTest {
 		Assert.assertEquals(longCopy, sequences.get(5));
 	}
 
+	@Test
+	public void testFind() {
+		final Sequence masterCopy = copy(MASTER_SEQUENCE, "Master2");
+		final List<Haplotype> haplotypes = Haplotype.wrap(Arrays.asList(MID_DIFF_SEQUENCE, MASTER_SEQUENCE));
+		haplotypes.add(0, new Haplotype("Empty"));
+		final Haplotype foundHaplotype = Haplotype.find(masterCopy, haplotypes);
+		Assert.assertNotNull(foundHaplotype);
+		Assert.assertEquals(MASTER_SEQUENCE, foundHaplotype.getFirstSequence());
+	}
+
 	@Test(expected = IllegalArgumentException.class)
 	public void testNullAdd() {
 		final Haplotype haplotype = new Haplotype();
