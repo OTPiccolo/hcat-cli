@@ -36,7 +36,7 @@ public class BaseSequenceWriter implements ISequenceWriter {
 		if (writer == null) {
 			throw new IllegalArgumentException("Writer can't be null.");
 		}
-		this.writer = new BufferedWriter(writer, 128);
+		this.writer = writer instanceof BufferedWriter ? (BufferedWriter) writer : new BufferedWriter(writer, 1024);
 	}
 
 	@Override

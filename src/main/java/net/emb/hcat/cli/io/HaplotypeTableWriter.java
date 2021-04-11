@@ -39,7 +39,7 @@ public class HaplotypeTableWriter {
 		if (writer == null) {
 			throw new IllegalArgumentException("Writer can't be null.");
 		}
-		this.writer = new BufferedWriter(writer, 1024);
+		this.writer = writer instanceof BufferedWriter ? (BufferedWriter) writer : new BufferedWriter(writer, 1024);
 	}
 
 	/**
@@ -130,7 +130,7 @@ public class HaplotypeTableWriter {
 
 	/**
 	 * Convenience method to close the underlying writer.
-	 * 
+	 *
 	 * @see Writer#close()
 	 */
 	public void close() {
