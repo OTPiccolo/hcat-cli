@@ -2,8 +2,10 @@ package net.emb.hcat.cli.haplotype;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 
 import net.emb.hcat.cli.sequence.Sequence;
 
@@ -28,23 +30,33 @@ public class Haplotype extends LinkedHashSet<Sequence> {
 		if (sequences == null) {
 			return null;
 		}
-		final List<Haplotype> haplotypes = new ArrayList<Haplotype>();
-		for (final Sequence sequence : sequences) {
-			boolean foundHaplotype = false;
-			for (final Haplotype haplotype : haplotypes) {
-				if (haplotype.belongsToHaplotype(sequence)) {
-					haplotype.add(sequence);
-					foundHaplotype = true;
-					break;
-				}
-			}
 
-			if (!foundHaplotype) {
-				final Haplotype haplotype = new Haplotype(sequence);
-				haplotypes.add(haplotype);
-				haplotype.setName((haplotypes.size() < 10 ? "Hap0" : "Hap") + haplotypes.size());
+		// Create haplotypes.
+		final Map<String, Haplotype> map = new LinkedHashMap<>();
+		for (final Sequence sequence : sequences) {
+			Haplotype haplotype = map.get(sequence.getValue());
+			if (haplotype == null) {
+				haplotype = new Haplotype();
+				map.put(sequence.getValue(), haplotype);
 			}
+			haplotype.add(sequence);
 		}
+
+		// Set names. Make sure that all names have the same length by padding
+		// zeros to the name.
+		final List<Haplotype> haplotypes = new ArrayList<>(map.values());
+		final int digits = (int) Math.log10(haplotypes.size()) + 1;
+		for (int i = 1; i <= haplotypes.size(); i++) {
+			final int currentDigits = (int) Math.log10(i) + 1;
+			final StringBuilder builder = new StringBuilder(3 + digits);
+			builder.append("Hap");
+			for (int k = 0; k < digits - currentDigits; k++) {
+				builder.append('0');
+			}
+			builder.append(i);
+			haplotypes.get(i - 1).setName(builder.toString());
+		}
+
 		return haplotypes;
 	}
 

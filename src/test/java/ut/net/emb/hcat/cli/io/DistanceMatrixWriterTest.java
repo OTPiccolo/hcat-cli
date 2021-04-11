@@ -30,10 +30,10 @@ public class DistanceMatrixWriterTest {
 		writer.write(matrix);
 
 		final StringBuilder builder = new StringBuilder(200);
-		builder.append("HT-ID\tHap01\tHap02\tHap03").append(System.lineSeparator());
-		builder.append("Hap01\t-    \t1    \t2    ").append(System.lineSeparator());
-		builder.append("Hap02\t1    \t-    \t3    ").append(System.lineSeparator());
-		builder.append("Hap03\t2    \t3    \t-    ").append(System.lineSeparator());
+		builder.append("HT-ID\tHap1\tHap2\tHap3").append(System.lineSeparator());
+		builder.append("Hap1 \t-   \t1   \t2   ").append(System.lineSeparator());
+		builder.append("Hap2 \t1   \t-   \t3   ").append(System.lineSeparator());
+		builder.append("Hap3 \t2   \t3   \t-   ").append(System.lineSeparator());
 
 		Assert.assertEquals(builder.toString(), boas.toString());
 	}

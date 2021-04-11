@@ -2,6 +2,7 @@ package ut.net.emb.hcat.cli.haplotype;
 
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -42,6 +43,26 @@ public class HaplotypeTest {
 		Assert.assertTrue(haplotypes.get(2).contains(SHORT_SEQUENCE));
 		Assert.assertTrue(haplotypes.get(3).contains(LONG_SEQUENCE));
 		Assert.assertTrue(haplotypes.get(3).contains(longCopy));
+	}
+
+	@Test
+	public void testWrapNames() {
+		final List<Sequence> sequences = new ArrayList<>(1100);
+		for (int i = 0; i < 1100; i++) {
+			sequences.add(new Sequence(Integer.toString(i)));
+		}
+		final List<Haplotype> haplotypes = Haplotype.wrap(sequences);
+
+		Assert.assertNotNull(haplotypes);
+		Assert.assertEquals(1100, haplotypes.size());
+		Assert.assertEquals("Hap0001", haplotypes.get(0).getName());
+		Assert.assertEquals("Hap0009", haplotypes.get(8).getName());
+		Assert.assertEquals("Hap0010", haplotypes.get(9).getName());
+		Assert.assertEquals("Hap0099", haplotypes.get(98).getName());
+		Assert.assertEquals("Hap0100", haplotypes.get(99).getName());
+		Assert.assertEquals("Hap0999", haplotypes.get(998).getName());
+		Assert.assertEquals("Hap1000", haplotypes.get(999).getName());
+		Assert.assertEquals("Hap1100", haplotypes.get(1099).getName());
 	}
 
 	@Test
