@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.emb.hcat.cli.haplotype.DistanceMatrix;
 import net.emb.hcat.cli.haplotype.Haplotype;
 
@@ -14,6 +17,8 @@ import net.emb.hcat.cli.haplotype.Haplotype;
  * @author OT Piccolo
  */
 public class DistanceMatrixWriter {
+
+	private static final Logger log = LoggerFactory.getLogger(DistanceMatrixWriter.class);
 
 	private static final String HEADER = "HT-ID";
 
@@ -48,6 +53,8 @@ public class DistanceMatrixWriter {
 	 *             An I/O exception.
 	 */
 	public void write(final DistanceMatrix matrix) throws IOException {
+		log.info("Writing distance matrix.");
+
 		final Map<Haplotype, Map<Haplotype, Integer>> matrixMap = matrix.getMatrix();
 
 		// Compute maximum length of names, so indentation can happen.
@@ -97,6 +104,8 @@ public class DistanceMatrixWriter {
 			writer.newLine();
 			writer.flush();
 		}
+
+		log.info("{} entries successfully written.", matrixMap.size());
 	}
 
 	/**

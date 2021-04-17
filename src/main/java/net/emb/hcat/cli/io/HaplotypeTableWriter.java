@@ -9,6 +9,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.emb.hcat.cli.haplotype.Haplotype;
 import net.emb.hcat.cli.sequence.Difference;
 import net.emb.hcat.cli.sequence.Sequence;
@@ -19,6 +22,8 @@ import net.emb.hcat.cli.sequence.Sequence;
  * @author Heiko Mattes
  */
 public class HaplotypeTableWriter {
+
+	private static final Logger log = LoggerFactory.getLogger(HaplotypeTableWriter.class);
 
 	// Indents the given Appendable by the given amount of spaces.
 	private static void indent(final int times, final Appendable appendable) throws IOException {
@@ -61,6 +66,7 @@ public class HaplotypeTableWriter {
 			throw new IOException("Sequence does not belong to any haplotype. Can not write out haplotype table. Sequence name: " + master.getName());
 		}
 
+		log.info("Writing haplotype table with master haplotype: {}", masterHaplotype.getName());
 		// Calculate all positions.
 		final Set<Integer> positions = new TreeSet<>();
 		for (final Difference difference : result.values()) {
@@ -126,6 +132,8 @@ public class HaplotypeTableWriter {
 			writer.newLine();
 			writer.flush();
 		}
+
+		log.info("{} entries successfully written.", result.size());
 	}
 
 	/**
