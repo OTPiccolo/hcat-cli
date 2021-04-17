@@ -41,7 +41,7 @@ public class BaseSequenceReader implements ISequenceReader {
 		if (reader == null) {
 			throw new IllegalArgumentException("Reader can't be null.");
 		}
-		this.reader = new BufferedReader(reader, 128);
+		this.reader = reader instanceof BufferedReader ? (BufferedReader) reader : new BufferedReader(reader, 1024);
 	}
 
 	@Override

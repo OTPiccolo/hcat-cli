@@ -82,7 +82,7 @@ public class CodonTableReader {
 		if (reader == null) {
 			throw new IllegalArgumentException("Reader must not be null.");
 		}
-		this.reader = new BufferedReader(reader);
+		this.reader = reader instanceof BufferedReader ? (BufferedReader) reader : new BufferedReader(reader, 1024);
 	}
 
 	/**
