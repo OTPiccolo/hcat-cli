@@ -25,6 +25,7 @@ public class CsvReaderTest {
 	@Test
 	public void readEmptyWithDelimiter() throws Exception {
 		final CsvReader reader = new CsvReader(new StringReader("sep=;"));
+		reader.setDelimiter(',');
 		final List<Sequence> sequences = reader.read();
 		reader.close();
 
@@ -36,6 +37,7 @@ public class CsvReaderTest {
 	@Test
 	public void readSequence() throws Exception {
 		final CsvReader reader = new CsvReader(new StringReader("A,C,G,T"));
+		reader.setNameIncluded(false);
 		final List<Sequence> sequences = reader.read();
 		reader.close();
 
@@ -50,6 +52,7 @@ public class CsvReaderTest {
 	public void readSequenceWithSemicolon() throws Exception {
 		final CsvReader reader = new CsvReader(new StringReader("A;C;G;T"));
 		reader.setDelimiter(';');
+		reader.setNameIncluded(false);
 		final List<Sequence> sequences = reader.read();
 		reader.close();
 
@@ -64,6 +67,7 @@ public class CsvReaderTest {
 	public void readSequenceWithTab() throws Exception {
 		final CsvReader reader = new CsvReader(new StringReader("A\tC\tG\tT"));
 		reader.setDelimiter('\t');
+		reader.setNameIncluded(false);
 		final List<Sequence> sequences = reader.read();
 		reader.close();
 
@@ -78,6 +82,7 @@ public class CsvReaderTest {
 	public void readSequenceWithDelimiter() throws Exception {
 		final CsvReader reader = new CsvReader(new StringReader("sep=,\nA,C,G,T"));
 		reader.setDelimiter(';');
+		reader.setNameIncluded(false);
 		final List<Sequence> sequences = reader.read();
 		reader.close();
 
@@ -91,7 +96,6 @@ public class CsvReaderTest {
 	@Test
 	public void readSequenceWithName() throws Exception {
 		final CsvReader reader = new CsvReader(new StringReader("Test,A,C,G,T"));
-		reader.setNameIncluded(true);
 		final List<Sequence> sequences = reader.read();
 		reader.close();
 
@@ -105,6 +109,7 @@ public class CsvReaderTest {
 	@Test
 	public void readMultipleSequences() throws Exception {
 		final CsvReader reader = new CsvReader(new StringReader("A,C,G,T\nT,G,C,A"));
+		reader.setNameIncluded(false);
 		final List<Sequence> sequences = reader.read();
 		reader.close();
 

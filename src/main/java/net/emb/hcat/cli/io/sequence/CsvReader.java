@@ -23,7 +23,7 @@ public class CsvReader extends BaseSequenceReader {
 
 	private char delimiter;
 
-	private boolean nameIncluded;
+	private boolean nameIncluded = true;
 
 	/**
 	 * Constructor.
@@ -122,7 +122,8 @@ public class CsvReader extends BaseSequenceReader {
 	}
 
 	/**
-	 * Gets whether the name is included as first value in sequence.
+	 * Gets whether the name is included as first value in sequence. Default is
+	 * <code>true</code>.
 	 *
 	 * @return <code>true</code>, if name is included, <code>false</code>
 	 *         otherwise.
@@ -132,7 +133,8 @@ public class CsvReader extends BaseSequenceReader {
 	}
 
 	/**
-	 * Sets whether the name is included as first value in sequence.
+	 * Sets whether the name is included as first value in sequence. Default is
+	 * <code>true</code>.
 	 *
 	 * @param nameIncluded
 	 *            <code>true</code>, if name is included, <code>false</code>
