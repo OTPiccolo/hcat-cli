@@ -119,10 +119,42 @@ public class CodonTransformerTest {
 	}
 
 	@Test
-	public void invalid() throws Exception {
+	public void skipInvalidCodon() throws Exception {
 		final Sequence sequence = new Sequence("CBAAABBBCCC");
 		final CodonTransformer transformer = new CodonTransformer(testCode, sequence);
 		Assert.assertEquals("ABC", transformer.transformAuto().getValue());
+	}
+
+	@Test
+	public void invalid() throws Exception {
+		final Sequence sequence = new Sequence("AABBCCDDD");
+		final CodonTransformer transformer = new CodonTransformer(testCode, sequence);
+		Assert.assertEquals("???", transformer.transformAuto().getValue());
+	}
+
+	@Test
+	public void additionalStartAndEnd() throws Exception {
+		final Sequence sequence = new Sequence("ABCAAABBBCCCCBAAAAABCAAABBBCCCCBA");
+		final CodonTransformer transformer = new CodonTransformer(testCode, sequence);
+		transformer.getAdditionalStart().add(18);
+		transformer.getAdditionalEnd().add(30);
+		Assert.assertEquals("SABCEASABCE", transformer.transform().getValue());
+	}
+
+	@Test
+	public void wrongAdditionalStartAndEnd() throws Exception {
+		final Sequence sequence = new Sequence("ABCAAABBBCCCCBAAAAABCAAABBBCCCCBA");
+		final CodonTransformer transformer = new CodonTransformer(testCode, sequence);
+		transformer.getAdditionalStart().add(15);
+		transformer.getAdditionalEnd().add(27);
+		Assert.assertEquals("SABCE?DAB??", transformer.transform().getValue());
+	}
+
+	@Test
+	public void missingAdditionalStartAndEnd() throws Exception {
+		final Sequence sequence = new Sequence("ABCAAABBBCCCCBAAAAABCAAABBBCCCCBA");
+		final CodonTransformer transformer = new CodonTransformer(testCode, sequence);
+		Assert.assertEquals("SABCEADABC?", transformer.transform().getValue());
 	}
 
 	@Test

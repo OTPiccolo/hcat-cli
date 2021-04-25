@@ -1,6 +1,8 @@
 package net.emb.hcat.cli.codon;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +22,9 @@ public class CodonTransformer {
 
 	private final CodonTransformationData data;
 	private final Sequence sequence;
+
+	private final Set<Integer> additionalStart = new HashSet<>();
+	private final Set<Integer> additionalEnd = new HashSet<>();
 
 	/**
 	 * Constructor.
@@ -152,18 +157,26 @@ public class CodonTransformer {
 		final String name = getSequence().getName();
 		log.debug("Transforming sequence with name \"{}\" from offset {}: {}", name, offset, value);
 
+		final boolean checkAdditionalStart = !getAdditionalStart().isEmpty();
+		final boolean checkAdditionalEnd = !getAdditionalEnd().isEmpty();
 		boolean startFound = false;
+		boolean endFound = false;
 		final StringBuilder builder = new StringBuilder(value.length() / 3 + 1);
 
 		for (int i = offset; i + 2 < value.length(); i = i + 3) {
 			final String sub = value.substring(i, i + 3);
-			if (!startFound && getData().start.containsKey(sub)) {
+			if (checkAdditionalStart && getAdditionalStart().contains(i)) {
+				builder.append(getData().start.containsKey(sub) ? getData().start.get(sub) : invalidChar);
+			} else if (checkAdditionalEnd && getAdditionalEnd().contains(i)) {
+				builder.append(getData().end.containsKey(sub) ? getData().end.get(sub) : invalidChar);
+			} else if (!startFound && getData().start.containsKey(sub)) {
 				builder.append(getData().start.get(sub));
 				startFound = true;
+			} else if (!endFound && getData().end.containsKey(sub)) {
+				builder.append(getData().end.get(sub));
+				endFound = true;
 			} else if (getData().codon.containsKey(sub)) {
 				builder.append(getData().codon.get(sub));
-			} else if (getData().end.containsKey(sub)) {
-				builder.append(getData().end.get(sub));
 			} else {
 				builder.append(invalidChar);
 			}
@@ -190,6 +203,30 @@ public class CodonTransformer {
 	 */
 	public Sequence getSequence() {
 		return sequence;
+	}
+
+	/**
+	 * Defines additional positions where a start codon is supposed to appear,
+	 * as only the first appearance of a start codon will be translated as such.
+	 * If at those positions no start codons are encountered, invalid codons
+	 * will be translated.
+	 *
+	 * @return A set containing all additional start codon positions.
+	 */
+	public Set<Integer> getAdditionalStart() {
+		return additionalStart;
+	}
+
+	/**
+	 * Defines additional positions where an end codon is supposed to appear, as
+	 * only the first appearance of an end codon will be translated as such. If
+	 * at those positions no end codons are encountered, invalid codons will be
+	 * translated.
+	 *
+	 * @return A set containing all additional start codon positions.
+	 */
+	public Set<Integer> getAdditionalEnd() {
+		return additionalEnd;
 	}
 
 }
