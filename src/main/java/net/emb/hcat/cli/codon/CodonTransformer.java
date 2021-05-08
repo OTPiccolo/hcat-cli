@@ -23,8 +23,8 @@ public class CodonTransformer {
 	private final CodonTransformationData data;
 	private final Sequence sequence;
 
-	private final Set<Integer> additionalStart = new HashSet<>();
-	private final Set<Integer> additionalEnd = new HashSet<>();
+	private final Set<Integer> alternativeStart = new HashSet<>();
+	private final Set<Integer> alternativeEnd = new HashSet<>();
 
 	/**
 	 * Constructor.
@@ -157,24 +157,16 @@ public class CodonTransformer {
 		final String name = getSequence().getName();
 		log.debug("Transforming sequence with name \"{}\" from offset {}: {}", name, offset, value);
 
-		final boolean checkAdditionalStart = !getAdditionalStart().isEmpty();
-		final boolean checkAdditionalEnd = !getAdditionalEnd().isEmpty();
-		boolean startFound = false;
-		boolean endFound = false;
+		final boolean checkAdditionalStart = !getAlternativeStart().isEmpty();
+		final boolean checkAdditionalEnd = !getAlternativeEnd().isEmpty();
 		final StringBuilder builder = new StringBuilder(value.length() / 3 + 1);
 
 		for (int i = offset; i + 2 < value.length(); i = i + 3) {
 			final String sub = value.substring(i, i + 3);
-			if (checkAdditionalStart && getAdditionalStart().contains(i)) {
+			if (checkAdditionalStart && getAlternativeStart().contains((i - offset) / 3)) {
 				builder.append(getData().start.containsKey(sub) ? getData().start.get(sub) : invalidChar);
-			} else if (checkAdditionalEnd && getAdditionalEnd().contains(i)) {
+			} else if (checkAdditionalEnd && getAlternativeEnd().contains((i - offset) / 3)) {
 				builder.append(getData().end.containsKey(sub) ? getData().end.get(sub) : invalidChar);
-			} else if (!startFound && getData().start.containsKey(sub)) {
-				builder.append(getData().start.get(sub));
-				startFound = true;
-			} else if (!endFound && getData().end.containsKey(sub)) {
-				builder.append(getData().end.get(sub));
-				endFound = true;
 			} else if (getData().codon.containsKey(sub)) {
 				builder.append(getData().codon.get(sub));
 			} else {
@@ -206,27 +198,37 @@ public class CodonTransformer {
 	}
 
 	/**
-	 * Defines additional positions where a start codon is supposed to appear,
-	 * as only the first appearance of a start codon will be translated as such.
-	 * If at those positions no start codons are encountered, invalid codons
-	 * will be translated.
+	 * Defines positions where an alternate start codon is supposed to appear.
+	 * Usually, alternative start codons will not be translated. If at those
+	 * positions no start codons are encountered, invalid codons will be
+	 * translated.
 	 *
-	 * @return A set containing all additional start codon positions.
+	 * @return A set containing all additional start codon positions. The
+	 *         positions must be given for after the translation. For example,
+	 *         if you expect the 'AAA' codon in the sequence 'AAABBBCCC' to be a
+	 *         start codon, use '0'. If it should be 'BBB', use '1'. Offsets in
+	 *         the start sequence will be ignored. So if 'BCD' is supposed to be
+	 *         a start codon in the sequence 'ABCD', still use '0'.
 	 */
-	public Set<Integer> getAdditionalStart() {
-		return additionalStart;
+	public Set<Integer> getAlternativeStart() {
+		return alternativeStart;
 	}
 
 	/**
-	 * Defines additional positions where an end codon is supposed to appear, as
-	 * only the first appearance of an end codon will be translated as such. If
-	 * at those positions no end codons are encountered, invalid codons will be
+	 * Defines positions where an alternate end codon is supposed to appear.
+	 * Usually, alternative end codons will not be translated. If at those
+	 * positions no end codons are encountered, invalid codons will be
 	 * translated.
 	 *
-	 * @return A set containing all additional start codon positions.
+	 * @return A set containing all alternative end codon positions. The
+	 *         positions must be given for after the translation. For example,
+	 *         if you expect the 'BBB' codon in the sequence 'AAABBBCCC' to be
+	 *         an end codon, use '1'. If it should be 'CCC', use '2'. So if
+	 *         'BCD' is supposed to be an end codon in the sequence 'ABCD',
+	 *         still use '0'.
 	 */
-	public Set<Integer> getAdditionalEnd() {
-		return additionalEnd;
+	public Set<Integer> getAlternativeEnd() {
+		return alternativeEnd;
 	}
 
 }
