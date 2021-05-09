@@ -67,49 +67,64 @@ public class CodonTransformer {
 	 * @return A new sequence, containing the Codon transformation.
 	 */
 	public Sequence transformAuto() {
-		log.debug("Automatic transformation. Checking offsets.");
-		final String value = getSequence().getValue();
+		log.debug("Automatic transformation.");
+		final int offset = findOffset();
+		return offset == -1 ? transform() : transform(offset);
+	}
+
+	/**
+	 * Find the offset that is most likely to produce a valid transformation.
+	 *
+	 * @return The offset, or -1 if no valid transformation could be found.
+	 */
+	public int findOffset() {
+		log.debug("Checking probable offset.");
 		// Sequence too short.
-		if (value.length() < 5) {
+		if (getSequence().getValue().length() < 5) {
 			log.debug("Sequence length too short. Starting at offset zero.");
-			return transform();
+			return 0;
 		}
 
 		// Look for start codon.
-		Sequence transformed = findStart();
-		if (transformed == null) {
+		int offset = findStartOffset();
+		if (offset == -1) {
 			// If not found, look for sequence with least end codons.
-			transformed = findLeastEnd();
+			offset = findLeastEndOffset();
 		}
-		return transformed;
+		log.debug("Probable offset: {}", offset);
+		return offset;
 	}
 
 	// Look for sequence with start codon.
-	private Sequence findStart() {
+	private int findStartOffset() {
+		log.debug("Looking for start codons.");
 		final String value = getSequence().getValue();
 		for (int i = 0; i < 3; i++) {
 			final String sub = value.substring(i, i + 3);
 			if (getData().start.containsKey(sub)) {
 				log.debug("Found start codon at offset: {}", i);
-				return transform(i);
+				return i;
 			}
 		}
-		return null;
+		return -1;
 	}
 
 	// Look for sequence that contains the least end codons and no invalid
 	// codons.
-	private Sequence findLeastEnd() {
+	private int findLeastEndOffset() {
 		log.debug("Looking for least end codons.");
-		final Map<String, Character> end = getData().end;
-		Sequence transformed = null;
+		int offset = -1;
 		int endCount = Integer.MAX_VALUE;
+		final Map<String, Character> end = getData().end;
+
 		for (int i = 0; i < 3; i++) {
 			final Sequence transform = transform(i);
 			final String value = transform.getValue();
 			int currentCount = 0;
 			for (int j = 0; j < value.length(); j++) {
 				final char c = value.charAt(j);
+				// An invalid character encountered, so cannot be a valid
+				// offset.
 				if (c == invalidChar) {
 					currentCount = Integer.MAX_VALUE;
 					break;
@@ -120,7 +135,7 @@ public class CodonTransformer {
 			}
 			log.debug("At offset {}, found {} end codon(s)", i, currentCount);
 			if (currentCount < endCount) {
-				transformed = transform;
+				offset = i;
 				endCount = currentCount;
 				// No end codons found, can't get better than that.
 				if (endCount == 0) {
@@ -129,11 +144,7 @@ public class CodonTransformer {
 			}
 		}
 
-		// All sequences contained invalid characters, so just use offset zero.
-		if (transformed == null) {
-			transformed = transform();
-		}
-		return transformed;
+		return offset;
 	}
 
 	/**

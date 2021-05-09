@@ -110,13 +110,6 @@ public class CodonTransformerTest {
 	}
 
 	@Test
-	public void transformAutoLeastEnds() throws Exception {
-		final Sequence sequence = new Sequence("AAABCAAABBBCCCCBA");
-		final CodonTransformer transformer = new CodonTransformer(testCode, sequence);
-		Assert.assertEquals("SABCE", transformer.transformAuto().getValue());
-	}
-
-	@Test
 	public void skipInvalidCodon() throws Exception {
 		final Sequence sequence = new Sequence("CBAAABBBCCC");
 		final CodonTransformer transformer = new CodonTransformer(testCode, sequence);
@@ -124,10 +117,31 @@ public class CodonTransformerTest {
 	}
 
 	@Test
-	public void invalid() throws Exception {
+	public void onlyInvalid() throws Exception {
 		final Sequence sequence = new Sequence("AABBCCDDD");
 		final CodonTransformer transformer = new CodonTransformer(testCode, sequence);
 		Assert.assertEquals("???", transformer.transformAuto().getValue());
+	}
+
+	@Test
+	public void findOffsetStart() throws Exception {
+		final Sequence sequence = new Sequence("AAABCAAABBBCCCCBA");
+		final CodonTransformer transformer = new CodonTransformer(testCode, sequence);
+		Assert.assertEquals(2, transformer.findOffset());
+	}
+
+	@Test
+	public void findOffsetSkipInvalidCodon() throws Exception {
+		final Sequence sequence = new Sequence("CBAAABBBCCC");
+		final CodonTransformer transformer = new CodonTransformer(testCode, sequence);
+		Assert.assertEquals(2, transformer.findOffset());
+	}
+
+	@Test
+	public void findOffsetOnlyInvalid() throws Exception {
+		final Sequence sequence = new Sequence("AABBCCDDD");
+		final CodonTransformer transformer = new CodonTransformer(testCode, sequence);
+		Assert.assertEquals(-1, transformer.findOffset());
 	}
 
 	@Test
