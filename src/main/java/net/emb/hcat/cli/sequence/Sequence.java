@@ -7,6 +7,29 @@ package net.emb.hcat.cli.sequence;
  */
 public class Sequence {
 
+	/**
+	 * Checks, whether the given sequence only contains ATGC characters for its
+	 * value.
+	 *
+	 * @param sequence
+	 *            The sequence to check.
+	 * @return <code>true</code>, if the sequence only contains ATGC characters
+	 *         (case-insensitive). <code>false</code> otherwise.
+	 */
+	public static final boolean isAtgc(final Sequence sequence) {
+		if (sequence == null) {
+			return false;
+		}
+
+		final String value = sequence.getValue();
+		for (int i = 0; i < value.length(); i++) {
+			if (!ATGC.isAtgc(value.charAt(i))) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	private final String value;
 	private String name;
 
@@ -40,7 +63,7 @@ public class Sequence {
 	/**
 	 * Checks whether this sequence is equal to another sequence, ignoring its
 	 * name.
-	 * 
+	 *
 	 * @param seq
 	 *            The other sequence to check.
 	 * @return <code>true</code>, if both sequence values are the same,

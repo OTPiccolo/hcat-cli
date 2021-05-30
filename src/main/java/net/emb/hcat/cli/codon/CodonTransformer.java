@@ -175,9 +175,9 @@ public class CodonTransformer {
 		for (int i = offset; i + 2 < value.length(); i = i + 3) {
 			final String sub = value.substring(i, i + 3);
 			if (checkAdditionalStart && getAlternativeStart().contains((i - offset) / 3)) {
-				builder.append(getData().start.containsKey(sub) ? getData().start.get(sub) : invalidChar);
+				builder.append(getData().start.containsKey(sub) ? (char) getData().start.get(sub) : invalidChar);
 			} else if (checkAdditionalEnd && getAlternativeEnd().contains((i - offset) / 3)) {
-				builder.append(getData().end.containsKey(sub) ? getData().end.get(sub) : invalidChar);
+				builder.append(getData().end.containsKey(sub) ? (char) getData().end.get(sub) : invalidChar);
 			} else if (getData().codon.containsKey(sub)) {
 				builder.append(getData().codon.get(sub));
 			} else {
