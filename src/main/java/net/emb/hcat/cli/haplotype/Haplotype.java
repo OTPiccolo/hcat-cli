@@ -3,19 +3,18 @@ package net.emb.hcat.cli.haplotype;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
 import net.emb.hcat.cli.sequence.Sequence;
 
 /**
- * A haplotype is a set, containing all sequences that are identical in their
+ * A haplotype is a list, containing all sequences that are identical in their
  * value attribute.
  *
  * @author Heiko Mattes
  */
-public class Haplotype extends LinkedHashSet<Sequence> {
+public class Haplotype extends ArrayList<Sequence> {
 
 	private static final long serialVersionUID = 6822250160172188239L;
 

@@ -34,15 +34,16 @@ public class HaplotypeTest {
 		Assert.assertNotNull(haplotypes);
 		Assert.assertEquals(4, haplotypes.size());
 		Assert.assertEquals(2, haplotypes.get(0).size());
-		Assert.assertEquals(1, haplotypes.get(1).size());
+		Assert.assertEquals(2, haplotypes.get(1).size());
 		Assert.assertEquals(1, haplotypes.get(2).size());
 		Assert.assertEquals(2, haplotypes.get(3).size());
-		Assert.assertTrue(haplotypes.get(0).contains(MASTER_SEQUENCE));
-		Assert.assertTrue(haplotypes.get(0).contains(masterCopy));
-		Assert.assertTrue(haplotypes.get(1).contains(MID_DIFF_SEQUENCE));
-		Assert.assertTrue(haplotypes.get(2).contains(SHORT_SEQUENCE));
-		Assert.assertTrue(haplotypes.get(3).contains(LONG_SEQUENCE));
-		Assert.assertTrue(haplotypes.get(3).contains(longCopy));
+		Assert.assertSame(MASTER_SEQUENCE, haplotypes.get(0).get(0));
+		Assert.assertSame(masterCopy, haplotypes.get(0).get(1));
+		Assert.assertSame(MID_DIFF_SEQUENCE, haplotypes.get(1).get(0));
+		Assert.assertSame(MID_DIFF_SEQUENCE, haplotypes.get(1).get(1));
+		Assert.assertSame(SHORT_SEQUENCE, haplotypes.get(2).get(0));
+		Assert.assertSame(LONG_SEQUENCE, haplotypes.get(3).get(0));
+		Assert.assertSame(longCopy, haplotypes.get(3).get(1));
 	}
 
 	@Test
@@ -72,14 +73,16 @@ public class HaplotypeTest {
 		final List<Sequence> orgSequences = Arrays.asList(MASTER_SEQUENCE, MID_DIFF_SEQUENCE, SHORT_SEQUENCE, LONG_SEQUENCE, masterCopy, MID_DIFF_SEQUENCE, longCopy);
 		final List<Haplotype> haplotypes = Haplotype.wrap(orgSequences);
 		final List<Sequence> sequences = Haplotype.unwrap(haplotypes);
+		System.out.println(sequences);
 		Assert.assertNotNull(sequences);
-		Assert.assertEquals(6, sequences.size());
-		Assert.assertEquals(MASTER_SEQUENCE, sequences.get(0));
-		Assert.assertEquals(masterCopy, sequences.get(1));
-		Assert.assertEquals(MID_DIFF_SEQUENCE, sequences.get(2));
-		Assert.assertEquals(SHORT_SEQUENCE, sequences.get(3));
-		Assert.assertEquals(LONG_SEQUENCE, sequences.get(4));
-		Assert.assertEquals(longCopy, sequences.get(5));
+		Assert.assertEquals(7, sequences.size());
+		Assert.assertSame(MASTER_SEQUENCE, sequences.get(0));
+		Assert.assertSame(masterCopy, sequences.get(1));
+		Assert.assertSame(MID_DIFF_SEQUENCE, sequences.get(2));
+		Assert.assertSame(MID_DIFF_SEQUENCE, sequences.get(3));
+		Assert.assertSame(SHORT_SEQUENCE, sequences.get(4));
+		Assert.assertSame(LONG_SEQUENCE, sequences.get(5));
+		Assert.assertSame(longCopy, sequences.get(6));
 	}
 
 	@Test
