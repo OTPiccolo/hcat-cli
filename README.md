@@ -14,17 +14,17 @@ It can read in sequences in different formats, like...
 ### Examples
 All references to **hcat.jar** mean the actual file name of the hcat jar you downloaded.
 
-This line will read in the sequences from the given file in the same folder as **hcat.jar**, using the first found sequence as the master sequence and write out the result on the command line.
-'''
+This line will read in the sequences from the given file in the same folder as *hcat.jar*, using the first found sequence as the master sequence and write out the result on the command line.
+```
 java -jar hcat.jar -haplotype sequencefile.txt
-'''  
+```  
 
 This line will read in the sequences from the given file, write the result to the other given file and use the sequence with the given ID as the master sequence.
-'''
+```
 java -jar hcat.jar -haplotype -i inputfile.fas -o outputfile.txt -mi "ID of sequence"
-'''
+```
 
 This line will write out help information about hcat and all supported options.
-'''
+```
 java -jar hcat.jar -haplotype -?
-'''
+```
