@@ -223,15 +223,16 @@ public class Main {
 		System.out.println("The following functions are available:");
 		System.out.println();
 
-		System.out.println("\t* Performa a haplotype analysis.");
+		System.out.println("\t* Perform a haplotype analysis.");
 		System.out.println("\t\t" + HAPLOTYPE_ARG + " <args>");
 		System.out.println("\t\tFor help use: " + HAPLOTYPE_ARG + " " + HELP_1_ARG);
 		System.out.println();
 
-		System.out.println("\t* Performa a codon transformation.");
-		System.out.println("\t\t" + CODON_ARG + " <args>");
-		System.out.println("\t\tFor help use: " + CODON_ARG + " " + HELP_1_ARG);
-		System.out.println();
+		// System.out.println("\t* Perform a codon transformation.");
+		// System.out.println("\t\t" + CODON_ARG + " <args>");
+		// System.out.println("\t\tFor help use: " + CODON_ARG + " " +
+		// HELP_1_ARG);
+		// System.out.println();
 	}
 
 	private static final void writeCodonHelp() {
