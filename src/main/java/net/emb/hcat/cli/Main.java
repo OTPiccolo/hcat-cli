@@ -17,7 +17,9 @@ import com.jenkov.cliargs.CliArgs;
 import net.emb.hcat.cli.haplotype.Haplotype;
 import net.emb.hcat.cli.haplotype.HaplotypeTransformer;
 import net.emb.hcat.cli.io.HaplotypeTableWriter;
-import net.emb.hcat.cli.io.sequence.FastaReader;
+import net.emb.hcat.cli.io.sequence.BaseSequenceReader;
+import net.emb.hcat.cli.io.sequence.ESequenceType;
+import net.emb.hcat.cli.io.sequence.ISequenceReader;
 import net.emb.hcat.cli.sequence.Difference;
 import net.emb.hcat.cli.sequence.Sequence;
 
@@ -37,6 +39,8 @@ public class Main {
 	private static final String INPUT_LONG_ARG = "--input";
 	private static final String OUTPUT_ARG = "-o";
 	private static final String OUTPUT_LONG_ARG = "--output";
+	private static final String FILE_FORMAT_ARG = "-f";
+	private static final String FILE_FORMAT_LONG_ARG = "--fileformat";
 	private static final String ENCODING_ARG = "-e";
 	private static final String ENCODING_LONG_ARG = "--encoding";
 	private static final String MASTER_SEQUENCE_ARG = "-ms";
@@ -82,6 +86,22 @@ public class Main {
 		return value;
 	}
 
+	private static final ESequenceType getFileFormat(final String fileTypeArg) {
+		switch (fileTypeArg.toLowerCase()) {
+		case "fasta":
+			return ESequenceType.FASTA;
+		case "phylip":
+			return ESequenceType.PHYLIP;
+		case "tcs":
+			return ESequenceType.PHYLIP_TCS;
+		case "csv":
+			return ESequenceType.CSV;
+		default:
+			System.err.println("File Type argument is unknown: " + fileTypeArg);
+			return null;
+		}
+	}
+
 	private static final void performCodon(final CliArgs args) {
 		if (isHelp(args)) {
 			writeCodonHelp();
@@ -101,6 +121,7 @@ public class Main {
 		// Read command line arguments.
 		String input = getArg(args, INPUT_ARG, INPUT_LONG_ARG);
 		final String output = getArg(args, OUTPUT_ARG, OUTPUT_LONG_ARG);
+		final String fileFormat = getArg(args, FILE_FORMAT_ARG, FILE_FORMAT_LONG_ARG);
 		final String encoding = getArg(args, ENCODING_ARG, ENCODING_LONG_ARG);
 		final String seq = getArg(args, MASTER_SEQUENCE_ARG, MASTER_SEQUENCE_LONG_ARG);
 		final String id = getArg(args, MASTER_ID_ARG, MASTER_ID_LONG_ARG);
@@ -114,20 +135,28 @@ public class Main {
 			}
 		}
 
+		final ESequenceType seqType = fileFormat != null ? getFileFormat(fileFormat) : ESequenceType.byFileEnding(input);
+		if (seqType == null) {
+			System.err.println("Could not determine file format by file name and no valid file format was specified.");
+			System.exit(1);
+		}
+
 		// Encoding charset.
 		final Charset charset = encoding == null ? StandardCharsets.UTF_8 : Charset.forName(encoding);
 
 		// Read input sequences
 		final List<Sequence> sequences;
-		try (FastaReader fasta = new FastaReader(new InputStreamReader(new FileInputStream(input), charset))) {
-			fasta.setEnforceSameLength(true);
-			sequences = fasta.read();
+		try (ISequenceReader reader = seqType.createReader(new InputStreamReader(new FileInputStream(input), charset))) {
+			if (reader instanceof BaseSequenceReader) {
+				((BaseSequenceReader) reader).setEnforceSameLength(true);
+			}
+			sequences = reader.read();
 		} catch (final FileNotFoundException e) {
 			System.err.println("Input file could not be found. Underlying error message: " + e.getMessage());
 			e.printStackTrace();
 			System.exit(1);
 			return;
-		} catch (final ErrorCodeException e) {
+		} catch (final ErrorCodeException | IOException e) {
 			System.err.println("Error reading input file. Underlying error message: " + e.getMessage());
 			e.printStackTrace();
 			System.exit(1);
@@ -246,6 +275,7 @@ public class Main {
 		System.out.println("Options:");
 		writeOptionLine(INPUT_ARG, INPUT_LONG_ARG, "\tPath to input file. If present, 'input_file' will be ignored.");
 		writeOptionLine(OUTPUT_ARG, OUTPUT_LONG_ARG, "Path to output file. If not present, will be written to console.");
+		writeOptionLine(FILE_FORMAT_ARG, FILE_FORMAT_LONG_ARG, "File format of input file. Possible values are: \"fasta\" for Fasta-, \"phylip\" for Phylip-, \"tcs\" for Phylip TCS- and \"csv\" for CSV/Excel-format. If not given, file type will be estimated according to the file ending.");
 		writeOptionLine(ENCODING_ARG, ENCODING_LONG_ARG, "Encoding of input file and output. If not given, UTF-8 will be used.");
 		writeOptionLine(MASTER_SEQUENCE_ARG, MASTER_SEQUENCE_LONG_ARG, "Master sequence to compare to. If neither master sequence nor ID is given, will use first sequence of input.");
 		writeOptionLine(MASTER_ID_ARG, MASTER_ID_LONG_ARG, "ID of master sequence to compare to. If neither master sequence nor ID is given, will use first sequence of input.");

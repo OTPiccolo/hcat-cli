@@ -20,6 +20,40 @@ public enum ESequenceType {
 	CSV;
 
 	/**
+	 * Estimates what sequence type the file represents, by checking the file
+	 * ending.
+	 *
+	 * @param fileName
+	 *            The name of the file, or the file ending.
+	 * @return The estimated sequence type, or <code>null</code>, if no sequence
+	 *         type could be estimated.
+	 */
+	public static final ESequenceType byFileEnding(final String fileName) {
+		if (fileName == null) {
+			return null;
+		}
+
+		final int indexEnding = fileName.lastIndexOf('.');
+		final String ending = indexEnding == -1 ? fileName.toLowerCase() : fileName.substring(indexEnding + 1).toLowerCase();
+
+		switch (ending) {
+		case "fas":
+		case "fasta":
+		case "txt":
+			return FASTA;
+		case "phy":
+		case "phylip":
+			return PHYLIP;
+		case "tcs":
+			return PHYLIP_TCS;
+		case "csv":
+			return CSV;
+		default:
+			return null;
+		}
+	}
+
+	/**
 	 * Gets a reader that can read sequences in the format of this enum.
 	 *
 	 * @param reader
