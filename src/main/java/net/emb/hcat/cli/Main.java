@@ -38,6 +38,7 @@ public class Main {
 
 	private static final String HAPLOTYPE_ARG = "-haplotype";
 	private static final String CODON_ARG = "-codon";
+	private static final String CONVERT_ARG = "-convert";
 	private static final String HELP_1_ARG = "-?";
 	private static final String HELP_2_ARG = "-h";
 	private static final String HELP_3_ARG = "--help";
@@ -55,6 +56,8 @@ public class Main {
 	private static final String MASTER_ID_LONG_ARG = "--masterid";
 	private static final String CODON_DATA_NUMBER_ARG = "-cn";
 	private static final String CODON_DATA_NUMBER_LONG_ARG = "--codonnumber";
+	private static final String OUTPUT_FILE_FORMAT_ARG = "-of";
+	private static final String OUTPUT_FILE_FORMAT_LONG_ARG = "--outputformat";
 
 	/**
 	 * Entry method for the jar file.
@@ -73,6 +76,8 @@ public class Main {
 		final CliArgs cliArgs = new CliArgs(args);
 		if (cliArgs.switchPresent(CODON_ARG)) {
 			performCodon(cliArgs);
+		} else if (cliArgs.switchPresent(CONVERT_ARG)) {
+			performConversion(cliArgs);
 		} else if (cliArgs.switchPresent(HAPLOTYPE_ARG)) {
 			performHaplotype(cliArgs);
 		} else if (isHelp(cliArgs)) {
@@ -164,6 +169,75 @@ public class Main {
 		}
 	}
 
+	private static final void performConversion(final CliArgs args) {
+		if (isHelp(args)) {
+			writeConversionHelp();
+			System.exit(0);
+		}
+
+		// Read command line arguments.
+		String input = getArg(args, INPUT_ARG, INPUT_LONG_ARG);
+		String outputFormat = getArg(args, OUTPUT_FILE_FORMAT_ARG, OUTPUT_FILE_FORMAT_LONG_ARG);
+		String output = getArg(args, OUTPUT_ARG, OUTPUT_LONG_ARG);
+		final String fileFormat = getArg(args, FILE_FORMAT_ARG, FILE_FORMAT_LONG_ARG);
+		final String encoding = getArg(args, ENCODING_ARG, ENCODING_LONG_ARG);
+		if (input == null) {
+			final String[] targets = args.targets();
+			if (targets.length > 0) {
+				input = targets[0];
+			} else {
+				System.err.println("No input file specified.");
+				System.exit(1);
+			}
+		}
+		if (outputFormat == null) {
+			final String[] targets = args.targets();
+			if (targets.length > 1) {
+				outputFormat = targets[1];
+			} else {
+				System.err.println("No output file format specified.");
+				System.exit(1);
+			}
+		}
+		if (output == null) {
+			final String[] targets = args.targets();
+			if (targets.length > 2) {
+				output = targets[2];
+			}
+		}
+
+		// Read sequence formats
+		final ESequenceType seqType = fileFormat != null ? getFileFormat(fileFormat) : ESequenceType.byFileEnding(input);
+		if (seqType == null) {
+			System.err.println("Could not determine input file format by file name and no valid file format was specified.");
+			System.exit(1);
+		}
+		final ESequenceType outputType = ESequenceType.byFileEnding(outputFormat);
+		if (seqType == null) {
+			System.err.println("No valid output file format was specified.");
+			System.exit(1);
+		}
+
+		// Encoding charset.
+		final Charset charset = encoding == null ? StandardCharsets.UTF_8 : Charset.forName(encoding);
+
+		// Read input sequences
+		final List<Sequence> sequences = readSequences(input, seqType, charset);
+
+		// Write output.
+		writeOutput(output, charset, writer -> {
+			final ISequenceWriter seqWriter = outputType.createWriter(writer);
+			try {
+				seqWriter.write(sequences);
+			} catch (final IOException e) {
+				System.err.println("Error writing output file. Underlying error message: " + e.getMessage());
+				e.printStackTrace();
+				System.exit(1);
+				return;
+			}
+		});
+	}
+
 	private static final void performCodon(final CliArgs args) {
 		if (isHelp(args)) {
 			writeCodonHelp();
@@ -201,12 +275,14 @@ public class Main {
 			}
 		}
 
+		// Read sequence format.
 		final ESequenceType seqType = fileFormat != null ? getFileFormat(fileFormat) : ESequenceType.byFileEnding(input);
 		if (seqType == null) {
 			System.err.println("Could not determine file format by file name and no valid file format was specified.");
 			System.exit(1);
 		}
 
+		// Get desired number of codon data.
 		if (codonNumber == null) {
 			System.err.println("No codon number given.");
 			System.exit(1);
@@ -289,6 +365,7 @@ public class Main {
 			}
 		}
 
+		// Read sequence format.
 		final ESequenceType seqType = fileFormat != null ? getFileFormat(fileFormat) : ESequenceType.byFileEnding(input);
 		if (seqType == null) {
 			System.err.println("Could not determine file format by file name and no valid file format was specified.");
@@ -367,6 +444,11 @@ public class Main {
 		System.out.println("The following functions are available:");
 		System.out.println();
 
+		System.out.println("\t* Perform a file type conversion.");
+		System.out.println("\t\t" + CONVERT_ARG + " <args>");
+		System.out.println("\t\tFor help use: " + CONVERT_ARG + " " + HELP_1_ARG);
+		System.out.println();
+
 		System.out.println("\t* Perform a haplotype analysis.");
 		System.out.println("\t\t" + HAPLOTYPE_ARG + " <args>");
 		System.out.println("\t\tFor help use: " + HAPLOTYPE_ARG + " " + HELP_1_ARG);
@@ -378,6 +460,21 @@ public class Main {
 		System.out.println();
 	}
 
+	private static final void writeConversionHelp() {
+		System.out.println("Performs a file type conversion. Reads in sequences in one format and writes them out in another.");
+		System.out.println();
+		System.out.println("Usage: -convert [options] input_file output_format [output_file]");
+		System.out.println("Example: -convert input_seq.fas tcs");
+		System.out.println("Example: -codon -f fasta -of tcs -i input_seq.txt -o output_seq.txt");
+		System.out.println("Options:");
+
+		writeOptionLine(ENCODING_ARG, ENCODING_LONG_ARG, "Encoding of input file and output. If not given, UTF-8 will be used.");
+		writeOptionLine(FILE_FORMAT_ARG, FILE_FORMAT_LONG_ARG, "File format of input file. Possible values are: \"fasta\" for Fasta-, \"phylip\" for Phylip-, \"tcs\" for Phylip TCS- and \"csv\" for CSV/Excel-format. If not given, file type will be estimated according to the file ending.");
+		writeOptionLine(INPUT_ARG, INPUT_LONG_ARG, "\tPath to input file. If present, 'input_file' will be ignored.");
+		writeOptionLine(OUTPUT_ARG, OUTPUT_LONG_ARG, "Path to output file. If present, 'output_file' will be ignored. If not present and 'output_file' is not present either, will be written to console.");
+		writeOptionLine(OUTPUT_FILE_FORMAT_ARG, OUTPUT_FILE_FORMAT_LONG_ARG, "File format of output file. Possible values are: \"fasta\" for Fasta-, \"phylip\" for Phylip-, \"tcs\" for Phylip TCS- and \"csv\" for CSV/Excel-format. If present, 'output_format' will be ignored.");
+	}
+
 	private static final void writeCodonHelp() {
 		System.out.println("Performs a codon translation. Reads in sequences and translates them via a codon table.");
 		System.out.println();
@@ -387,10 +484,10 @@ public class Main {
 		System.out.println("Options:");
 
 		writeOptionLine(CODON_DATA_NUMBER_ARG, CODON_DATA_NUMBER_LONG_ARG, "Uses the codon translation with the defined number. If present, 'codon_number' will be ignored.");
+		writeOptionLine(ENCODING_ARG, ENCODING_LONG_ARG, "Encoding of input file and output. If not given, UTF-8 will be used.");
+		writeOptionLine(FILE_FORMAT_ARG, FILE_FORMAT_LONG_ARG, "File format of input file. Possible values are: \"fasta\" for Fasta-, \"phylip\" for Phylip-, \"tcs\" for Phylip TCS- and \"csv\" for CSV/Excel-format. If not given, file type will be estimated according to the file ending.");
 		writeOptionLine(INPUT_ARG, INPUT_LONG_ARG, "\tPath to input file. If present, 'input_file' will be ignored.");
 		writeOptionLine(OUTPUT_ARG, OUTPUT_LONG_ARG, "Path to output file. If present, 'output_file' will be ignored. If not present and 'output_file' is not present either, will be written to console.");
-		writeOptionLine(FILE_FORMAT_ARG, FILE_FORMAT_LONG_ARG, "File format of input file. Possible values are: \"fasta\" for Fasta-, \"phylip\" for Phylip-, \"tcs\" for Phylip TCS- and \"csv\" for CSV/Excel-format. If not given, file type will be estimated according to the file ending.");
-		writeOptionLine(ENCODING_ARG, ENCODING_LONG_ARG, "Encoding of input file and output. If not given, UTF-8 will be used.");
 	}
 
 	private static final void writeHaplotypeHelp() {
@@ -401,10 +498,10 @@ public class Main {
 		System.out.println("Example: -haplotype -ms ACGTGTCAC -i input_seq.fas -o haplotype.txt");
 		System.out.println("Options:");
 
+		writeOptionLine(ENCODING_ARG, ENCODING_LONG_ARG, "Encoding of input file and output. If not given, UTF-8 will be used.");
+		writeOptionLine(FILE_FORMAT_ARG, FILE_FORMAT_LONG_ARG, "File format of input file. Possible values are: \"fasta\" for Fasta-, \"phylip\" for Phylip-, \"tcs\" for Phylip TCS- and \"csv\" for CSV/Excel-format. If not given, file type will be estimated according to the file ending.");
 		writeOptionLine(INPUT_ARG, INPUT_LONG_ARG, "\tPath to input file. If present, 'input_file' will be ignored.");
 		writeOptionLine(OUTPUT_ARG, OUTPUT_LONG_ARG, "Path to output file. If present, 'output_file' will be ignored. If not present and 'output_file' is not present either, will be written to console.");
-		writeOptionLine(FILE_FORMAT_ARG, FILE_FORMAT_LONG_ARG, "File format of input file. Possible values are: \"fasta\" for Fasta-, \"phylip\" for Phylip-, \"tcs\" for Phylip TCS- and \"csv\" for CSV/Excel-format. If not given, file type will be estimated according to the file ending.");
-		writeOptionLine(ENCODING_ARG, ENCODING_LONG_ARG, "Encoding of input file and output. If not given, UTF-8 will be used.");
 		writeOptionLine(MASTER_SEQUENCE_ARG, MASTER_SEQUENCE_LONG_ARG, "Master sequence to compare to. If neither master sequence nor ID is given, will use first sequence of input.");
 		writeOptionLine(MASTER_ID_ARG, MASTER_ID_LONG_ARG, "ID of master sequence to compare to. If neither master sequence nor ID is given, will use first sequence of input.");
 	}
