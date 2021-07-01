@@ -98,6 +98,7 @@ public class HaplotypeTableWriter {
 		// Write all position numbers.
 		writer.append("Positions");
 		indent(maxLength - positionLength, writer);
+		writer.append("\tCount");
 		for (final Integer pos : positions) {
 			writer.append('\t');
 			writer.append(String.valueOf(pos.intValue() + 1));
@@ -109,6 +110,8 @@ public class HaplotypeTableWriter {
 		final String masterName = names.get(masterHaplotype).toString();
 		writer.append(masterName);
 		indent(maxLength - masterName.length(), writer);
+		writer.append('\t');
+		writer.append(Integer.toString(masterHaplotype.size()));
 		for (final Integer pos : positions) {
 			writer.append('\t');
 			writer.append(master.getValue().charAt(pos.intValue()));
@@ -125,6 +128,8 @@ public class HaplotypeTableWriter {
 			}
 			final String difference = result.get(haplotype).getDifference();
 			writer.append(entry.getValue().toString());
+			writer.append('\t');
+			writer.append(Integer.toString(entry.getKey().size()));
 			for (final Integer pos : positions) {
 				writer.append('\t');
 				writer.append(difference.charAt(pos.intValue()));

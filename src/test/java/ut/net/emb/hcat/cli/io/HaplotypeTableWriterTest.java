@@ -36,10 +36,10 @@ public class HaplotypeTableWriterTest {
 		writer.write(MASTER_SEQUENCE, transformed);
 
 		final StringBuilder builder = new StringBuilder(100);
-		builder.append("Positions   \t1\t3\t5").append(System.lineSeparator());
-		builder.append("Master      \tA\tC\tE").append(System.lineSeparator());
-		builder.append("FrontAndBack\tB\t.\tD").append(System.lineSeparator());
-		builder.append("Mid; Mid2   \t.\tB\t.").append(System.lineSeparator());
+		builder.append("Positions   \tCount\t1\t3\t5").append(System.lineSeparator());
+		builder.append("Master      \t1\tA\tC\tE").append(System.lineSeparator());
+		builder.append("FrontAndBack\t1\tB\t.\tD").append(System.lineSeparator());
+		builder.append("Mid; Mid2   \t2\t.\tB\t.").append(System.lineSeparator());
 
 		Assert.assertEquals(builder.toString(), boas.toString());
 	}
