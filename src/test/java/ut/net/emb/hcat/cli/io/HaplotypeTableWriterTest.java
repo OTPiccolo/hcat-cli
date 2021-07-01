@@ -36,10 +36,32 @@ public class HaplotypeTableWriterTest {
 		writer.write(MASTER_SEQUENCE, transformed);
 
 		final StringBuilder builder = new StringBuilder(100);
-		builder.append("Positions   \tCount\t1\t3\t5").append(System.lineSeparator());
-		builder.append("Master      \t1\tA\tC\tE").append(System.lineSeparator());
-		builder.append("FrontAndBack\t1\tB\t.\tD").append(System.lineSeparator());
-		builder.append("Mid; Mid2   \t2\t.\tB\t.").append(System.lineSeparator());
+		builder.append("Haplotype\tSequences   \tCount\t1\t3\t5").append(System.lineSeparator());
+		builder.append("Hap3     \tMaster      \t1\tA\tC\tE").append(System.lineSeparator());
+		builder.append("Hap1     \tFrontAndBack\t1\tB\t.\tD").append(System.lineSeparator());
+		builder.append("Hap2     \tMid; Mid2   \t2\t.\tB\t.").append(System.lineSeparator());
+
+		Assert.assertEquals(builder.toString(), boas.toString());
+	}
+
+	@Test
+	public void testWriter_HaplotypeNameNull() throws Exception {
+		final List<Haplotype> haplotypes = Haplotype.wrap(Arrays.asList(FRONT_BACK_DIFF_SEQUENCE, MID_DIFF_SEQUENCE, MID2_DIFF_SEQUENCE, MASTER_SEQUENCE));
+		for (final Haplotype haplotype : haplotypes) {
+			haplotype.setName(null);
+		}
+		final HaplotypeTransformer transformer = new HaplotypeTransformer(haplotypes);
+		final Map<Haplotype, Difference> transformed = transformer.compareToMaster(MASTER_SEQUENCE);
+
+		final ByteArrayOutputStream boas = new ByteArrayOutputStream(100);
+		final HaplotypeTableWriter writer = new HaplotypeTableWriter(new OutputStreamWriter(boas));
+		writer.write(MASTER_SEQUENCE, transformed);
+
+		final StringBuilder builder = new StringBuilder(100);
+		builder.append("Haplotype\tSequences   \tCount\t1\t3\t5").append(System.lineSeparator());
+		builder.append("         \tMaster      \t1\tA\tC\tE").append(System.lineSeparator());
+		builder.append("         \tFrontAndBack\t1\tB\t.\tD").append(System.lineSeparator());
+		builder.append("         \tMid; Mid2   \t2\t.\tB\t.").append(System.lineSeparator());
 
 		Assert.assertEquals(builder.toString(), boas.toString());
 	}

@@ -73,31 +73,41 @@ public class HaplotypeTableWriter {
 			positions.addAll(difference.getDifferencePosition());
 		}
 
-		final int positionLength = "Positions".length();
+		final int hapLength = "Haplotype".length();
+		final int seqLength = "Sequences".length();
 
-		// Write for each difference the name of all sequences.
-		int maxLength = positionLength;
-		final Map<Haplotype, StringBuilder> names = new LinkedHashMap<>();
+		// Determine the max length of haplotype names.
+		int hapMaxLength = hapLength;
+		for (final Haplotype hap : result.keySet()) {
+			final String hapName = hap.getName();
+			hapMaxLength = Math.max(hapMaxLength, hapName == null ? 0 : hapName.length());
+		}
+
+		// Determine for each difference the name of all sequences.
+		int seqMaxLength = seqLength;
+		final Map<Haplotype, StringBuilder> seqNames = new LinkedHashMap<>();
 		for (final Haplotype haplotype : result.keySet()) {
-			final StringBuilder builder = new StringBuilder(maxLength);
-			names.put(haplotype, builder);
+			final StringBuilder builder = new StringBuilder(seqMaxLength);
+			seqNames.put(haplotype, builder);
 			for (final Sequence sequence : haplotype) {
 				builder.append(sequence.getName());
 				builder.append("; ");
 			}
 			builder.delete(builder.length() - 2, builder.length());
-			maxLength = Math.max(maxLength, builder.length());
+			seqMaxLength = Math.max(seqMaxLength, builder.length());
 		}
 
 		// Pretty print the names so all are the same length.
-		for (final StringBuilder builder : names.values()) {
-			builder.ensureCapacity(maxLength);
-			indent(maxLength - builder.length(), builder);
+		for (final StringBuilder builder : seqNames.values()) {
+			builder.ensureCapacity(seqMaxLength);
+			indent(seqMaxLength - builder.length(), builder);
 		}
 
-		// Write all position numbers.
-		writer.append("Positions");
-		indent(maxLength - positionLength, writer);
+		// Write headers.
+		writer.append("Haplotype");
+		indent(hapMaxLength - hapLength, writer);
+		writer.append("\tSequences");
+		indent(seqMaxLength - seqLength, writer);
 		writer.append("\tCount");
 		for (final Integer pos : positions) {
 			writer.append('\t');
@@ -107,9 +117,13 @@ public class HaplotypeTableWriter {
 		writer.flush();
 
 		// Write master sequence.
-		final String masterName = names.get(masterHaplotype).toString();
-		writer.append(masterName);
-		indent(maxLength - masterName.length(), writer);
+		final String hapMasterName = masterHaplotype.getName() == null ? "" : masterHaplotype.getName();
+		writer.append(hapMasterName);
+		indent(hapMaxLength - hapMasterName.length(), writer);
+		writer.append('\t');
+		final String seqMasterName = seqNames.get(masterHaplotype).toString();
+		writer.append(seqMasterName);
+		indent(seqMaxLength - seqMasterName.length(), writer);
 		writer.append('\t');
 		writer.append(Integer.toString(masterHaplotype.size()));
 		for (final Integer pos : positions) {
@@ -120,16 +134,20 @@ public class HaplotypeTableWriter {
 		writer.flush();
 
 		// Write out the differences.
-		for (final Entry<Haplotype, StringBuilder> entry : names.entrySet()) {
+		for (final Entry<Haplotype, StringBuilder> entry : seqNames.entrySet()) {
 			final Haplotype haplotype = entry.getKey();
 			if (masterHaplotype == haplotype) {
 				// Already written master haplotype.
 				continue;
 			}
-			final String difference = result.get(haplotype).getDifference();
+			final String hapName = haplotype.getName() == null ? "" : haplotype.getName();
+			writer.append(hapName);
+			indent(hapMaxLength - hapName.length(), writer);
+			writer.append('\t');
 			writer.append(entry.getValue().toString());
 			writer.append('\t');
 			writer.append(Integer.toString(entry.getKey().size()));
+			final String difference = result.get(haplotype).getDifference();
 			for (final Integer pos : positions) {
 				writer.append('\t');
 				writer.append(difference.charAt(pos.intValue()));
