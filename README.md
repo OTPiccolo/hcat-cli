@@ -2,18 +2,18 @@
 ## Command Line Interface (CLI)
 
 ### Overview
-HCAT is a tool to help all scientists out there to analyze their sequence data faster and more reliable, by utilizing the strengths of a computer to automate repetitive tasks in a uniform way. No longer do you have to waste hours painstakingly categorizing sequence data into haplotypes, always fearing that you might slip up somewhere and thus invalidate all the hard work you did.
+HCAT is a tool to help all scientists out there to analyze their haplotype sequence data faster and more reliable, by utilizing the strengths of a computer to automate repetitive tasks in a uniform way. No longer do you have to waste hours painstakingly categorizing sequence data into haplotypes, always fearing that you might slip up somewhere and thus invalidate all the hard work you did.
 
 ### Conversion
 HCAT can convert sequence data between different formats, to easily import them into different tools that might only read a specific file format.
 
 #### Supported file formats for sequences
 * Fasta
-* Phylip (normal and TCS)
+* Phylip (normal and for TCS (Clement et al., 2000))
 * CSV (Comma Separated Value)
 
 ### Haplotype Analysis
-Analysis sequence data and categorize it into haplotypes. Will also compare those haplotypes with a master sequence, displaying all differences.
+Analyze sequence data and categorize it into haplotypes. Will also compare those haplotypes with a reference sequence, displaying all differences.
 
 ### Codon Translation
 Translates sequences into their codon equivalent. The codon translation data is already configured, so you just have to know the correct codon number you want to use. Please see https://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi for the correct codon number to use. The data HCAT uses is also supplied by them.
@@ -49,7 +49,7 @@ java -jar hcat.jar -haplotype -i inputfile.fas -o outputfile.txt -mi "ID of sequ
 ```
 
 ### Codon Translation
-This line will read in the sequnces, and uses the *The Standard Code* (number 1) codon table to translate them, writing them to the command line.
+This line will read in the sequences, and uses the *The Standard Code* (number 1) codon table to translate them, writing them to the command line.
 ```
 java -jar hcat.jar -codon 1 sequencefile.fas
 ```
